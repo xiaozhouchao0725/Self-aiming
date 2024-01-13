@@ -155,6 +155,25 @@
 #define MOTOR_ECD_TO_RAD 0.000766990394f //      2*  PI  /8192
 #endif
 
+//线性控制器前馈系数
+#define YAW_FEED_FORWARD 0.9f
+#define PITCH_FEED_FORWARD 0.95f
+
+//角度误差项系数
+#define K_YAW_ANGLE_ERROR 55000.0f
+#define K_PITCH_ANGLE_ERROR 160000.0f//150000.0f
+
+//速度项系数
+#define K_YAW_ANGLE_SPEED 950.0f//4000.0f
+#define K_PITCH_ANGLE_SPEED 3500.0f//4000.0f
+
+//最大最小输出
+#define YAW_MAX_OUT 32000.0f
+#define YAW_MIX_OUT -32000.0f
+#define PITCH_MAX_OUT 30000.0f
+#define PITCH_MIX_OUT -30000.0f
+
+
 typedef enum
 {
     GIMBAL_MOTOR_RAW = 0, //电机原始值控制
@@ -163,6 +182,34 @@ typedef enum
 		GIMBAL_MOTOR_GYRONOLIMIT,//小陀螺陀螺仪控制
 } gimbal_motor_mode_e;
 
+//云台电机二阶线性控制器
+typedef struct 
+{
+    //设定值
+    fp32 set_angle;
+    //当前角度   一阶状态
+    fp32 cur_angle;
+    //当前角速度 二阶状态
+    fp32 cur_angle_speed;
+    //角度误差项 一阶状态误差
+    fp32 angle_error;
+    //前馈项，用于消除系统固有扰动
+    fp32 feed_forward;
+    //输出值
+    fp32 output;
+    //最大输出值
+    fp32 max_out;
+    //最小输出值
+    fp32 min_out;
+
+    //前馈项系数
+    fp32 k_feed_forward;
+    //误差项系数
+    fp32 k_angle_error;
+    //二阶角速度项系数
+    fp32 k_angle_speed;
+
+}gimbal_motor_second_order_linear_controller_t;
 typedef struct
 {
     fp32 kp;
@@ -185,6 +232,8 @@ typedef struct
 
 typedef struct
 {
+      //二阶线性控制器
+    gimbal_motor_second_order_linear_controller_t gimbal_motor_second_order_linear_controller;
 
     const motor_measure_t *gimbal_motor_measure;
     gimbal_PID_t gimbal_motor_absolute_angle_pid;
