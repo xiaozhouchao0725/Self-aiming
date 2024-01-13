@@ -293,7 +293,7 @@ typedef struct
 	    //场地yaw轴正方向
     fp32 yaw_positive_direction;
 
-	
+	fp32 right_click_time;
 } gimbal_control_t;
 
 /**
