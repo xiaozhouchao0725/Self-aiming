@@ -497,8 +497,8 @@ void vision_shoot_judge(vision_control_t* shoot_judge, fp32 vision_begin_add_yaw
 static void set_vision_send_packet(vision_control_t* set_send_packet)
 {
     set_send_packet->send_packet.header = LOWER_TO_HIGH_HEAD;
-    set_send_packet->send_packet.detect_color = 1;
-//	set_send_packet->send_packet.detect_color = set_send_packet->detect_armor_color;
+//    set_send_packet->send_packet.detect_color = 1;
+	set_send_packet->send_packet.detect_color = set_send_packet->detect_armor_color;
     set_send_packet->send_packet.roll = set_send_packet->imu_absolution_angle.roll;
     set_send_packet->send_packet.pitch = set_send_packet->imu_absolution_angle.pitch;
     set_send_packet->send_packet.yaw = set_send_packet->imu_absolution_angle.yaw;

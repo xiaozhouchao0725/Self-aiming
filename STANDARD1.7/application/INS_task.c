@@ -67,33 +67,33 @@ void INS_Task(void)
         INS.Gyro[Y] = BMI088.Gyro[Y];
         INS.Gyro[Z] = BMI088.Gyro[Z];
 
-        // demo function,用于�?正安装�??�?,�?以不�?,本demo暂时没用
+        // demo function,鐢ㄤ簬锟�?姝ｅ畨瑁咃拷??锟�?,锟�?浠ヤ笉锟�?,鏈琩emo鏆傛椂娌＄敤
         IMU_Param_Correction(&IMU_Param, INS.Gyro, INS.Accel);
 
-        // 计算重力加速度矢量和b系的XY两轴的夹�?,�?用作功能扩展,本demo暂时没用
+        // 璁＄畻閲嶅姏鍔犻€熷害鐭㈤噺鍜宐绯荤殑XY涓よ酱鐨勫す锟�?,锟�?鐢ㄤ綔鍔熻兘鎵╁睍,鏈琩emo鏆傛椂娌＄敤
         INS.atanxz = -atan2f(INS.Accel[X], INS.Accel[Z]) * 180 / PI;
         INS.atanyz = atan2f(INS.Accel[Y], INS.Accel[Z]) * 180 / PI;
 
-        // 核心函数,EKF更新四元�?
+        // 鏍稿績鍑芥暟,EKF鏇存柊鍥涘厓锟�?
         IMU_QuaternionEKF_Update(INS.Gyro[X], INS.Gyro[Y], INS.Gyro[Z], INS.Accel[X], INS.Accel[Y], INS.Accel[Z], dt);
 
         memcpy(INS.q, QEKF_INS.q, sizeof(QEKF_INS.q));
 
-        // 机体系基向量�?换到导航坐标系，�?例选取�?性系为�?�航�?
+        // 鏈轰綋绯诲熀鍚戦噺锟�?鎹㈠埌瀵艰埅鍧愭爣绯伙紝锟�?渚嬮€夊彇锟�?鎬х郴涓猴拷?锟借埅锟�?
         BodyFrameToEarthFrame(xb, INS.xn, INS.q);
         BodyFrameToEarthFrame(yb, INS.yn, INS.q);
         BodyFrameToEarthFrame(zb, INS.zn, INS.q);
 
-        // 将重力从导航坐标系n�?换到机体系b,随后根据加速度计数�?计算运动加速度
+        // 灏嗛噸鍔涗粠瀵艰埅鍧愭爣绯籲锟�?鎹㈠埌鏈轰綋绯籦,闅忓悗鏍规嵁鍔犻€熷害璁℃暟锟�?璁＄畻杩愬姩鍔犻€熷害
         float gravity_b[3];
         EarthFrameToBodyFrame(gravity, gravity_b, INS.q);
-        for (uint8_t i = 0; i < 3; i++) // 同样过一�?低通滤�?
+        for (uint8_t i = 0; i < 3; i++) // 鍚屾牱杩囦竴锟�?浣庨€氭护锟�?
         {
             INS.MotionAccel_b[i] = (INS.Accel[i] - gravity_b[i]) * dt / (INS.AccelLPF + dt) + INS.MotionAccel_b[i] * INS.AccelLPF / (INS.AccelLPF + dt);
         }
-        BodyFrameToEarthFrame(INS.MotionAccel_b, INS.MotionAccel_n, INS.q); // �?换回导航系n
+        BodyFrameToEarthFrame(INS.MotionAccel_b, INS.MotionAccel_n, INS.q); // 锟�?鎹㈠洖瀵艰埅绯籲
 
-        // 获取最终数值
+        // 鑾峰彇鏈€缁堟暟鍊�
         INS.Yaw = QEKF_INS.Yaw * ANGLE_TO_RADIAN;
         INS.Pitch = QEKF_INS.Pitch * ANGLE_TO_RADIAN;
         INS.Roll = QEKF_INS.Roll * ANGLE_TO_RADIAN;
@@ -159,12 +159,12 @@ void EarthFrameToBodyFrame(const float *vecEF, float *vecBF, float *q)
 }
 
 /**
- * @brief reserved.用于�?�?IMU安�?��??�?与标度因数�??�?,即陀螺仪轴和云台轴的安�?�偏�?
+ * @brief reserved.鐢ㄤ簬锟�?锟�?IMU瀹夛拷?锟斤拷??锟�?涓庢爣搴﹀洜鏁帮拷??锟�?,鍗抽檧铻轰华杞村拰浜戝彴杞寸殑瀹夛拷?锟藉亸锟�?
  *
  *
- * @param param IMU参数
- * @param gyro  角速度
- * @param accel 加速度
+ * @param param IMU鍙傛暟
+ * @param gyro  瑙掗€熷害
+ * @param accel 鍔犻€熷害
  */
 static void IMU_Param_Correction(IMU_Param_t *param, float gyro[3], float accel[3])
 {
@@ -229,7 +229,7 @@ static void IMU_Param_Correction(IMU_Param_t *param, float gyro[3], float accel[
 }
 
 /**
- * @brief 温度控制
+ * @brief 娓╁害鎺у埗
  * 
  */
 void IMU_Temperature_Ctrl(void)

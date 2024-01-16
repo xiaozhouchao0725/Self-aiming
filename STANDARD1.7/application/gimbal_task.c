@@ -206,8 +206,8 @@ void gimbal_task(void const *pvParameters)
     gimbal_set_control(&gimbal_control);                 // 设置云台控制量
     gimbal_control_loop(&gimbal_control);                // 云台控制PID计算
 
-    //        if (!(toe_is_error(YAW_GIMBAL_MOTOR_TOE) && toe_is_error(PITCH_GIMBAL_MOTOR_TOE)))
-    //        {
+            if (!(toe_is_error(YAW_GIMBAL_MOTOR_TOE) && toe_is_error(PITCH_GIMBAL_MOTOR_TOE)))
+            {
     if (toe_is_error(DBUS_TOE))
     {
       CAN_cmd_gimbal(0, 0, 0, 0);
@@ -215,9 +215,9 @@ void gimbal_task(void const *pvParameters)
     else
     {
       CAN_cmd_gimbal(gimbal_control.gimbal_yaw_motor.given_current, -gimbal_control.gimbal_pitch_motor.given_current, 0, 0);
-      //				CAN_cmd_gimbal(0, 0, 0, 0);
+//      				CAN_cmd_gimbal(0, 0, 0, 0);
     }
-    //        }
+            }
 
     vTaskDelay(GIMBAL_CONTROL_TIME);
 
