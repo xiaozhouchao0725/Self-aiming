@@ -26,7 +26,7 @@
 #define CHASSIS_CAN hcan1
 #define GIMBAL_CAN 	hcan1
 #define SHOOT_CAN 	hcan2
-#define CAP_CAN			hcan1
+#define CAP_CAN		hcan1
 
 /* CAN send and receive ID */
 typedef enum
@@ -40,10 +40,12 @@ typedef enum
 		CAN_GIMBAL_ALL_ID = 0x1FF,
     CAN_YAW_MOTOR_ID = 0x205,
     CAN_PIT_MOTOR_ID = 0x206,
-		CAN_SHOOT_ALL_ID = 0x200,
-		CAN_3508_LEFT_ID = 0x202,
-		CAN_3508_RIGHT_ID = 0x203,
-		CAN_TRIGGER_MOTOR_ID = 0x204,
+	
+		CAN_SHOOT_ALL_ID = 0x1FF,
+	CAN_3508_LEFT_ID = 0x205,
+		CAN_3508_RIGHT_ID = 0x206,
+		CAN_TRIGGER_MOTOR_ID = 0x207,
+	
 		CAP_ID = 0x211,
     
 } can_msg_id_e;

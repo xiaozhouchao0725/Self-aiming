@@ -533,19 +533,14 @@ static void gimbal_behavour_set(gimbal_control_t *gimbal_mode_set)
   }
   
   static int8_t press_r_last_s = 0;
-  static int16_t last_key_G = 0;
+//  static int16_t last_key_G = 0;
   static int16_t move = 0;
 
-  if (!last_key_G && gimbal_mode_set->gimbal_rc_ctrl->key.v & KEY_PRESSED_OFFSET_G)
-  {
-    move = !move;
-  }
-  
-  if (press_r_last_s&&gimbal_mode_set->gimbal_rc_ctrl->mouse.press_r)
-  {
-	gimbal_mode_set->right_click_time++;
-  }
-  
+//  if (!last_key_G && gimbal_mode_set->gimbal_rc_ctrl->key.v & KEY_PRESSED_OFFSET_G)
+//  {
+//    move = !move;
+//  }
+//  
   static int mode = 0;
   if (gimbal_mode_set->gimbal_rc_ctrl->key.v & KEY_PRESSED_OFFSET_B)
   {
@@ -555,42 +550,27 @@ static void gimbal_behavour_set(gimbal_control_t *gimbal_mode_set)
   {
     mode = 2;
   }
-   if (gimbal_mode_set->right_click_time>40)
+   if (press_r_last_s&&gimbal_mode_set->gimbal_rc_ctrl->mouse.press_r)
   {
     mode = 3;
   }
   // 开关控制 云台状态
-  if (switch_is_up(gimbal_mode_set->gimbal_rc_ctrl->rc.s[1])) // left
-  {
-    if (switch_is_up(gimbal_mode_set->gimbal_rc_ctrl->rc.s[0]))
-    {
-      gimbal_behaviour = GIMBAL_AUTO_ATTACK;
-    }
-    else if (switch_is_down(gimbal_mode_set->gimbal_rc_ctrl->rc.s[0]))
-    {
-      gimbal_behaviour = GIMBAL_ABSOLUTE_ANGLE;
-    }
-    else if (switch_is_mid(gimbal_mode_set->gimbal_rc_ctrl->rc.s[0]))
-    {
-      gimbal_behaviour = GIMBAL_ABSOLUTE_SPIN;
-    }
-  }
-  else if (switch_is_mid(gimbal_mode_set->gimbal_rc_ctrl->rc.s[1])) // left
-  {
-    if (switch_is_up(gimbal_mode_set->gimbal_rc_ctrl->rc.s[0]))
-    {
-      gimbal_behaviour = GIMBAL_AUTO_ATTACK;
-    }
-    else if (switch_is_down(gimbal_mode_set->gimbal_rc_ctrl->rc.s[0]))
-    {
-      gimbal_behaviour = GIMBAL_ABSOLUTE_ANGLE;
-    }
-    else if (switch_is_mid(gimbal_mode_set->gimbal_rc_ctrl->rc.s[0]))
-    {
-      gimbal_behaviour = GIMBAL_ABSOLUTE_SPIN;
-    }
-  }
-  else if (switch_is_down(gimbal_mode_set->gimbal_rc_ctrl->rc.s[1]) && move)
+  if (!switch_is_down(gimbal_mode_set->gimbal_rc_ctrl->rc.s[1]))
+		{
+				if (switch_is_down(gimbal_mode_set->gimbal_rc_ctrl->rc.s[0]))
+				{
+						gimbal_behaviour = GIMBAL_ABSOLUTE_ANGLE;
+				}
+				else if (switch_is_mid(gimbal_mode_set->gimbal_rc_ctrl->rc.s[0]))
+				{
+						gimbal_behaviour = GIMBAL_ABSOLUTE_ANGLE;
+				}
+				else if (switch_is_up(gimbal_mode_set->gimbal_rc_ctrl->rc.s[0]))
+				{
+						gimbal_behaviour = GIMBAL_ABSOLUTE_SPIN;
+				}
+		}		
+  else if (switch_is_down(gimbal_mode_set->gimbal_rc_ctrl->rc.s[1]))
   {
 	if (mode == 3)
     {
@@ -690,8 +670,9 @@ static void gimbal_behavour_set(gimbal_control_t *gimbal_mode_set)
   //    {
   //        motionless_time = 0;
   //    }
-  last_key_G = gimbal_mode_set->gimbal_rc_ctrl->key.v & KEY_PRESSED_OFFSET_G;
+//  last_key_G = gimbal_mode_set->gimbal_rc_ctrl->key.v & KEY_PRESSED_OFFSET_G;
   press_r_last_s = gimbal_mode_set->gimbal_rc_ctrl->mouse.press_r;
+  
 }
 
 /**

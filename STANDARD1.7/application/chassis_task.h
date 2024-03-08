@@ -130,6 +130,12 @@
 #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT  5000.0f
 #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT 0.2f
 
+//底盘电机功率环PID
+#define M3505_MOTOR_POWER_PID_KP 1.0f
+#define M3505_MOTOR_POWER_PID_KI 0.2f
+#define M3505_MOTOR_POWER_PID_KD 0.f
+#define M3505_MOTOR_POWER_PID_MAX_OUT 15.0f
+#define M3505_MOTOR_POWER_PID_MAX_IOUT 10.0f
 
 typedef enum
 {
@@ -149,18 +155,36 @@ typedef struct
   fp32 speed;
   fp32 speed_set;
   int16_t give_current;
+  pid_type_def chassis_pid;
 } chassis_motor_t;
+
+//typedef struct
+//{
+//  fp32 speed[4];
+//	int16_t max_current[4];
+//	int16_t current[4];
+//	fp32 totalCurrent;
+//	fp32 totalspeed;
+//	int16_t power_limit;
+//	int16_t k;                                //功率控制系数
+//} power_ctrl_t;
 
 typedef struct
 {
-  fp32 speed[4];
-	int16_t max_current[4];
-	int16_t current[4];
-	fp32 totalCurrent;
-	fp32 totalspeed;
-	int16_t power_limit;
-	int16_t k;                                //功率控制系数
-} power_ctrl_t;
+	fp32 totalCurrentTemp;
+	fp32 totalSpeed;
+	fp32 current[4];
+	fp32 power_current[4];
+	fp32 speed[4];
+	fp32 POWER_MAX;
+	fp32 MAX_current[4];
+    fp32 SPEED_MIN;	
+	fp32 K;
+	fp32 power_charge; //超电充电
+	fp32 forecast_motor_power[4]; // 预测单个电机功率
+	fp32 forecast_total_power; // 预测总功率
+} Power_Control;
+
 typedef struct
 {
   const RC_ctrl_t *chassis_RC;               //底盘使用的遥控器指针, the point to remote control
@@ -172,7 +196,9 @@ typedef struct
   chassis_motor_t motor_chassis[4];          //chassis motor data.底盘电机数据
   pid_type_def motor_speed_pid[4];             //motor speed PID.底盘电机速度pid
   pid_type_def chassis_angle_pid;              //follow angle PID.底盘跟随角度pid
-
+	
+  pid_type_def buffer_pid;     //功率环PID
+	
   first_order_filter_type_t chassis_cmd_slow_set_vx;  //use first order filter to slow set-point.使用一阶低通滤波减缓设定值
   first_order_filter_type_t chassis_cmd_slow_set_vy;  //use first order filter to slow set-point.使用一阶低通滤波减缓设定值
 
@@ -194,7 +220,13 @@ typedef struct
   fp32 chassis_pitch; //the pitch angle calculated by gyro sensor and gimbal motor.陀螺仪和云台电机叠加的pitch角度
   fp32 chassis_roll;  //the roll angle calculated by gyro sensor and gimbal motor.陀螺仪和云台电机叠加的roll角度
 	
-	power_ctrl_t power_control;
+  Power_Control  power_control;
+  Power_Control  rudder_power_control;
+  
+  int16_t chassis_power_buffer; //缓冲能量，双板通信数据
+  int16_t chassis_power_MAX;    //裁判系统最大功率，双板通信数据
+  int16_t key_C;
+	
 } chassis_move_t;
 
 /**

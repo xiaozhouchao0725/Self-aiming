@@ -36,7 +36,8 @@
 														//开启发弹摩擦轮
 #define shoot_fric(speed) 	shoot_control.fric_left_speed_set = -speed;\
 														shoot_control.fric_right_speed_set = speed    
-#define trigger_motor(speed)				shoot_control.trigger_speed_set = speed //开启拨弹电机
+														
+#define trigger_motor(speed)				shoot_control.trigger_speed_set = -speed //开启拨弹电机
 ////行程开关IO
 //#define BUTTEN_TRIG_PIN     HAL_GPIO_ReadPin(BUTTON_TRIG_GPIO_Port, BUTTON_TRIG_Pin)
 #define shoot_laser_on()    laser_on()      //激光开启宏定义
@@ -88,17 +89,17 @@ void shoot_task(void const *pvParameters)
 				shoot_set_mode();
 				shoot_feedback_update();
 				shoot_control_loop();		 //设置发弹控制量
-			  if (!(toe_is_error(FRIC_LEFT_MOTOR_TOE) || toe_is_error(FRIC_RIGHT_MOTOR_TOE)	|| toe_is_error(TRIGGER_MOTOR_TOE)))
-        {
+//			  if ((toe_is_error(FRIC_LEFT_MOTOR_TOE) || toe_is_error(FRIC_RIGHT_MOTOR_TOE)	|| toe_is_error(TRIGGER_MOTOR_TOE)))
+//        {
             if (toe_is_error(DBUS_TOE))
             {
                 CAN_cmd_shoot(0, 0, 0, 0);
             }
             else
             {
-                CAN_cmd_shoot(0 ,left_can_set_current, right_can_set_current, trigger_can_set_current);
+				CAN_cmd_shoot(left_can_set_current,right_can_set_current,trigger_can_set_current,0);
             }
-        }
+//        }
 				vTaskDelay(SHOOT_CONTROL_TIME_MS);
 		}
 }
@@ -218,11 +219,12 @@ int s=2000,l;
 						}
 						else if((shoot_control.shoot_rc->rc.ch[4] < -500 || (press_l_last_s&&shoot_control.press_l))
 							&& (robot_state.shooter_id1_17mm_cooling_limit - power_heat_data_t.shooter_id1_17mm_cooling_heat >= 30)){
-								shoot_control.black_time++;
+//								shoot_control.black_time++;
+								shoot_control.lianfa_flag=1;
 						}
-						if(shoot_control.black_time>40){
-						shoot_control.lianfa_flag=1;
-						}
+//						if(shoot_control.black_time>40){
+//						shoot_control.lianfa_flag=1;
+//						}
 				if(shoot_control.shoot_flag ==1)
 		{
 				shoot_control.shoot_time = 0;

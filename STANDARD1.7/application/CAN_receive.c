@@ -109,34 +109,34 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 					}
 			}
 		}
-//		else if(hcan==&hcan1)
-//		{
-//			switch (rx_header.StdId)
-//			{
-//				case CAN_3508_LEFT_ID:
-//				{
-//						get_motor_measure(&motor_chassis[7], rx_data);
-//						detect_hook(FRIC_LEFT_MOTOR_TOE);
-//						break;
-//				}
-//				case CAN_3508_RIGHT_ID:
-//				{
-//						get_motor_measure(&motor_chassis[8], rx_data);
-//						detect_hook(FRIC_RIGHT_MOTOR_TOE );
-//						break;
-//				}
-//				case CAN_TRIGGER_MOTOR_ID:
-//				{
-//						get_motor_measure(&motor_chassis[9], rx_data);
-//						detect_hook(TRIGGER_MOTOR_TOE);
-//						break;
-//				}
-//				default:
-//				{
-//						break;
-//				}
-//			}
-//		}
+		else if(hcan==&hcan2)
+		{
+			switch (rx_header.StdId)
+			{
+				case CAN_3508_LEFT_ID:
+				{
+						get_motor_measure(&motor_chassis[7], rx_data);
+						detect_hook(FRIC_LEFT_MOTOR_TOE);
+						break;
+				}
+				case CAN_3508_RIGHT_ID:
+				{
+						get_motor_measure(&motor_chassis[8], rx_data);
+						detect_hook(FRIC_RIGHT_MOTOR_TOE );
+						break;
+				}
+				case CAN_TRIGGER_MOTOR_ID:
+				{
+						get_motor_measure(&motor_chassis[9], rx_data);
+						detect_hook(TRIGGER_MOTOR_TOE);
+						break;
+				}
+				default:
+				{
+						break;
+				}
+			}
+		}
 }
 
 
@@ -226,21 +226,21 @@ void CAN_cmd_chassis(int16_t motor1, int16_t motor2, int16_t motor3, int16_t mot
   * @param[in]      trigger: (0x204) 3508电机控制电流, 范围 [-16384,16384]
   * @retval         none
   */
-void CAN_cmd_shoot(int16_t s, int16_t left, int16_t right, int16_t trigger)
+void CAN_cmd_shoot(int16_t left, int16_t right, int16_t trigger,int16_t s)
 {
     uint32_t send_mail_box;
     shoot_tx_message.StdId = CAN_SHOOT_ALL_ID;
     shoot_tx_message.IDE = CAN_ID_STD;
     shoot_tx_message.RTR = CAN_RTR_DATA;
     shoot_tx_message.DLC = 0x08;
-    shoot_can_send_data[0] = s >> 8;
-    shoot_can_send_data[1] = s;
-    shoot_can_send_data[2] = left >> 8;
-    shoot_can_send_data[3] = left;
-    shoot_can_send_data[4] = right >> 8;
-    shoot_can_send_data[5] = right;
-    shoot_can_send_data[6] = trigger>> 8;
-    shoot_can_send_data[7] = trigger;
+	shoot_can_send_data[0] = left >> 8;
+    shoot_can_send_data[1] = left;
+    shoot_can_send_data[2] = right >> 8;
+    shoot_can_send_data[3] = right;
+    shoot_can_send_data[4] = trigger >> 8;
+    shoot_can_send_data[5] = trigger;
+    shoot_can_send_data[6] = s>> 8;
+    shoot_can_send_data[7] = s;
 
     HAL_CAN_AddTxMessage(&SHOOT_CAN, &shoot_tx_message, shoot_can_send_data, &send_mail_box);
 }
