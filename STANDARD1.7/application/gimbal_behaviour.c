@@ -534,7 +534,7 @@ static void gimbal_behavour_set(gimbal_control_t *gimbal_mode_set)
   
   static int8_t press_r_last_s = 0;
 //  static int16_t last_key_G = 0;
-  static int16_t move = 0;
+//  static int16_t move = 0;
 
 //  if (!last_key_G && gimbal_mode_set->gimbal_rc_ctrl->key.v & KEY_PRESSED_OFFSET_G)
 //  {
@@ -589,15 +589,15 @@ static void gimbal_behavour_set(gimbal_control_t *gimbal_mode_set)
         gimbal_behaviour = GIMBAL_ABSOLUTE_SPIN;
       }
     }
-    else
-    {
-      gimbal_behaviour = GIMBAL_ZERO_FORCE;
-    }
+//    else
+//    {
+//      gimbal_behaviour = GIMBAL_ZERO_FORCE;
+//    }
   }
 
   else
   {
-    robot_state.mains_power_chassis_output = 0;
+    robot_state.power_management_chassis_output = 0;
     gimbal_behaviour = GIMBAL_ZERO_FORCE;
   }
   /*

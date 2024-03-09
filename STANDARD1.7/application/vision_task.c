@@ -559,13 +559,13 @@ static void calc_current_bullet_speed(vision_control_t* calc_cur_bullet_speed, b
 // }
 
 
-static void get_robot_cur_pos(vision_control_t* robot_pos)
-{
-    robot_pos->auto_move.cur_pos.x = robot_pos->auto_move.game_robot_pos->x;
-    robot_pos->auto_move.cur_pos.y = robot_pos->auto_move.game_robot_pos->y;
-    robot_pos->auto_move.cur_pos.z = robot_pos->auto_move.game_robot_pos->z;
-    robot_pos->auto_move.cur_pos.yaw = robot_pos->auto_move.game_robot_pos->yaw;
-}
+//static void get_robot_cur_pos(vision_control_t* robot_pos)
+//{
+//    robot_pos->auto_move.cur_pos.x = robot_pos->auto_move.game_robot_pos->x;
+//    robot_pos->auto_move.cur_pos.y = robot_pos->auto_move.game_robot_pos->y;
+//    robot_pos->auto_move.cur_pos.z = robot_pos->auto_move.game_robot_pos->z;
+//    robot_pos->auto_move.cur_pos.yaw = robot_pos->auto_move.game_robot_pos->yaw;
+//}
 
 
 // static void get_robot_target_pos(vision_control_t* robot_pos)

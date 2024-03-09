@@ -31,6 +31,7 @@ ext_student_interactive_data_t student_interactive_data_t;
 ext_rfid_status_t  rfid_status_t;
 ext_robot_command_t robot_command_t;
 
+
 void init_referee_struct_data(void)
 {
     memset(&referee_receive_header, 0, sizeof(frame_header_struct_t));
@@ -40,12 +41,10 @@ void init_referee_struct_data(void)
     memset(&game_result, 0, sizeof(ext_game_result_t));
     memset(&game_robot_HP_t, 0, sizeof(ext_game_robot_HP_t));
 
-
     memset(&field_event, 0, sizeof(ext_event_data_t));
     memset(&supply_projectile_action_t, 0, sizeof(ext_supply_projectile_action_t));
     memset(&supply_projectile_booking_t, 0, sizeof(ext_supply_projectile_booking_t));
     memset(&referee_warning_t, 0, sizeof(ext_referee_warning_t));
-
 
     memset(&robot_state, 0, sizeof(ext_game_robot_state_t));
     memset(&power_heat_data_t, 0, sizeof(ext_power_heat_data_t));
@@ -56,10 +55,8 @@ void init_referee_struct_data(void)
     memset(&shoot_data_t, 0, sizeof(ext_shoot_data_t));
     memset(&bullet_remaining_t, 0, sizeof(ext_bullet_remaining_t));
 
-
     memset(&student_interactive_data_t, 0, sizeof(ext_student_interactive_data_t));
-
-
+    memset(&robot_command_t, 0, sizeof(ext_robot_command_t));
 
 }
 
@@ -93,10 +90,10 @@ void referee_data_solve(uint8_t *frame)
             memcpy(&game_robot_HP_t, frame + index, sizeof(ext_game_robot_HP_t));
         }
         break;
-				case RFID_STATE_CMD_ID:
-				{
-						memcpy(&rfid_status_t, frame + index, sizeof(rfid_status_t));
-				}
+        case RFID_STATE_CMD_ID:
+        {
+            memcpy(&rfid_status_t, frame + index, sizeof(rfid_status_t));
+        }
         case FIELD_EVENTS_CMD_ID:
         {
             memcpy(&field_event, frame + index, sizeof(field_event));
@@ -163,30 +160,34 @@ void referee_data_solve(uint8_t *frame)
             memcpy(&student_interactive_data_t, frame + index, sizeof(student_interactive_data_t));
         }
         break;
+        case ROBOT_COMMAND_ID:
+        {
+            memcpy(&robot_command_t, frame + index, sizeof(ext_robot_command_t));
+        }
+        break;
         default:
         {
             break;
         }
-    }
+        }
 }
 
 void get_chassis_power_and_buffer(fp32 *power, fp32 *buffer)
 {
-    *power = power_heat_data_t.chassis_power;
-    *buffer = power_heat_data_t.chassis_power_buffer;
+        *power = power_heat_data_t.chassis_power;
+        *buffer = power_heat_data_t.chassis_power_buffer;
 }
-
 
 uint8_t get_robot_id(void)
 {
     return robot_state.robot_id;
 }
 
-void get_shoot_heat_limit_and_heat(uint16_t *heat_limit, uint16_t *heat)
-{
-    *heat_limit = robot_state.shooter_id1_42mm_cooling_limit;
-    *heat = power_heat_data_t.shooter_id1_42mm_cooling_heat;
-}
+// void get_shoot_heat_limit_and_heat(uint16_t *heat_limit, uint16_t *heat)
+// {
+//     *heat_limit = robot_state.shooter_id1_42mm_cooling_limit;
+//     *heat = power_heat_data_t.shooter_id1_42mm_cooling_heat;
+// }
 
 //获取机器人状态
 ext_game_robot_state_t* get_game_robot_status_point(void)
