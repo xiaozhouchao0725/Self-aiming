@@ -276,6 +276,10 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 				if(mode == 1)
 				{
 						chassis_behaviour_mode = CHASSIS_NO_FOLLOW_YAW;
+						if(chassis_move_mode->chassis_RC->key.v & KEY_PRESSED_OFFSET_SHIFT )
+						{
+								chassis_behaviour_mode = CHASSIS_BPIN;
+						}
 				}
 				else if(mode == 2)
 				{

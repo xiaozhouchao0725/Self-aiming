@@ -42,7 +42,7 @@ static void calc_current_bullet_speed(vision_control_t* calc_cur_bullet_speed, b
 // 计算自动移动
 // static void calc_auto_move_data(vision_control_t* robot_auto_move);
 //获取当前机器人位置
-static void get_robot_cur_pos(vision_control_t* robot_pos);
+//static void get_robot_cur_pos(vision_control_t* robot_pos);
 //获取目标机器人位置
 // static void get_robot_target_pos(vision_control_t* robot_pos);
 
@@ -155,7 +155,7 @@ static void vision_task_feedback_update(vision_control_t* update)
     // 更新弹道计算的可变参数
     assign_solve_trajectory_param(&update->solve_trajectory, update->imu_absolution_angle.pitch, update->imu_absolution_angle.yaw, update->bullet_speed, queue_data_calc_average(update->time_bias) + TIME_MS_TO_S(ROBOT_TIMR_BIAS));
     // 获取地图正方向
-    update->auto_move.begin_yaw = get_yaw_positive_direction();
+//    update->auto_move.begin_yaw = get_yaw_positive_direction();
 
     //获取目标数据
     if (update->vision_receive_point->receive_state == UNLOADED)

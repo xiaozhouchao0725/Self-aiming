@@ -206,8 +206,8 @@ void gimbal_task(void const *pvParameters)
     gimbal_set_control(&gimbal_control);                 // 设置云台控制量
     gimbal_control_loop(&gimbal_control);                // 云台控制PID计算
 
-            if (!(toe_is_error(YAW_GIMBAL_MOTOR_TOE) && toe_is_error(PITCH_GIMBAL_MOTOR_TOE)))
-            {
+//            if (!(toe_is_error(YAW_GIMBAL_MOTOR_TOE) && toe_is_error(PITCH_GIMBAL_MOTOR_TOE)))
+//            {
     if (toe_is_error(DBUS_TOE))
     {
       CAN_cmd_gimbal(0, 0, 0, 0);
@@ -216,7 +216,7 @@ void gimbal_task(void const *pvParameters)
     {
       CAN_cmd_gimbal(gimbal_control.gimbal_yaw_motor.given_current, -gimbal_control.gimbal_pitch_motor.given_current, 0, 0);
     }
-            }
+//            }
 
     vTaskDelay(GIMBAL_CONTROL_TIME);
 
@@ -351,7 +351,7 @@ static void gimbal_init(gimbal_control_t *init)
   const static fp32 yaw_vision_pid[3] = {YAW_VISION_PID_KP, YAW_VISION_PID_KI, YAW_VISION_PID_KD};
   const static fp32 pitch_vision_pid[3] = {PITCH_VISION_PID_KP, PITCH_VISION_PID_KI, PITCH_VISION_PID_KD};
   // 继电器控制云台电源
-  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, GPIO_PIN_RESET);
+//  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, GPIO_PIN_RESET);
   // 电机数据指针获取
   init->gimbal_yaw_motor.gimbal_motor_measure = get_yaw_gimbal_motor_measure_point();
   init->gimbal_pitch_motor.gimbal_motor_measure = get_pitch_gimbal_motor_measure_point();

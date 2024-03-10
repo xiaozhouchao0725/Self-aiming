@@ -542,20 +542,23 @@ static void gimbal_behavour_set(gimbal_control_t *gimbal_mode_set)
 //  }
 //  
   static int mode = 0;
-  if (gimbal_mode_set->gimbal_rc_ctrl->key.v & KEY_PRESSED_OFFSET_B)
-  {
-    mode = 1;
-  }
-  if (gimbal_mode_set->gimbal_rc_ctrl->key.v & KEY_PRESSED_OFFSET_V)
-  {
-    mode = 2;
-  }
+//  if (gimbal_mode_set->gimbal_rc_ctrl->key.v & KEY_PRESSED_OFFSET_B)
+//  {
+//    mode = 1;
+//  }
+//  if (gimbal_mode_set->gimbal_rc_ctrl->key.v & KEY_PRESSED_OFFSET_V)
+//  {
+//    mode = 2;
+//  }
    if (press_r_last_s&&gimbal_mode_set->gimbal_rc_ctrl->mouse.press_r)
   {
     mode = 3;
   }
+  else
+	mode = 1;
+  
   // 开关控制 云台状态
-  if (!switch_is_down(gimbal_mode_set->gimbal_rc_ctrl->rc.s[1]))
+  if (!switch_is_down(gimbal_mode_set->gimbal_rc_ctrl->rc.s[1]))//left
 		{
 				if (switch_is_down(gimbal_mode_set->gimbal_rc_ctrl->rc.s[0]))
 				{
@@ -576,30 +579,30 @@ static void gimbal_behavour_set(gimbal_control_t *gimbal_mode_set)
     {
       gimbal_behaviour = GIMBAL_AUTO_ATTACK;
     }
-    else if (mode == 1)
+     else if (mode == 1)
     {
       gimbal_behaviour = GIMBAL_ABSOLUTE_ANGLE;
     }
-    else if (mode == 2)
-    {
-      gimbal_behaviour = GIMBAL_ABSOLUTE_ANGLE;
-
-      if (gimbal_mode_set->gimbal_rc_ctrl->key.v & KEY_PRESSED_OFFSET_SHIFT)
-      {
-        gimbal_behaviour = GIMBAL_ABSOLUTE_SPIN;
-      }
-    }
-//    else
+//    else if (mode ==2 )
 //    {
-//      gimbal_behaviour = GIMBAL_ZERO_FORCE;
+//      gimbal_behaviour = GIMBAL_ABSOLUTE_ANGLE;
+
+//      if (gimbal_mode_set->gimbal_rc_ctrl->key.v & KEY_PRESSED_OFFSET_SHIFT)
+//      {
+//        gimbal_behaviour = GIMBAL_ABSOLUTE_SPIN;
+//      }
 //    }
+    else
+    {
+      gimbal_behaviour = GIMBAL_ZERO_FORCE;
+    }
   }
 
-  else
-  {
-    robot_state.power_management_chassis_output = 0;
-    gimbal_behaviour = GIMBAL_ZERO_FORCE;
-  }
+//  else
+//  {
+//    robot_state.power_management_chassis_output = 0;
+//    gimbal_behaviour = GIMBAL_ZERO_FORCE;
+//  }
   /*
       if (switch_is_up(gimbal_mode_set->gimbal_rc_ctrl->rc.s[0]))
       {
