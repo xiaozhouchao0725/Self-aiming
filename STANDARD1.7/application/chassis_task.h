@@ -100,7 +100,7 @@
 #define MAX_WHEEL_SPEED 100.0f
 //chassis forward or back max speed
 //底盘运动过程最大前进速度
-#define NORMAL_MAX_CHASSIS_SPEED_X 15.0f
+#define NORMAL_MAX_CHASSIS_SPEED_X 10.0f
 //chassis left or right max speed
 //底盘运动过程最大平移速度
 #define NORMAL_MAX_CHASSIS_SPEED_Y 10.0f
@@ -137,6 +137,13 @@
 #define M3505_MOTOR_POWER_PID_MAX_OUT 15.0f
 #define M3505_MOTOR_POWER_PID_MAX_IOUT 10.0f
 
+// 角度补偿参数
+#define Power_120_AngleCompensation -0.3
+#define Power_100_AngleCompensation -0.15
+#define Power_80_AngleCompensation -0.15
+#define Power_70_AngleCompensation -0.25
+#define Power_60_AngleCompensation -0.25
+#define Power_50_AngleCompensation -0.25
 typedef enum
 {
   CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW,   //chassis will follow yaw gimbal motor relative angle.底盘会跟随云台相对角度
@@ -210,7 +217,8 @@ typedef struct
   fp32 wz_set;                      //chassis set rotation speed,positive means counterclockwise,unit rad/s.底盘设定旋转角速度，逆时针为正 单位 rad/s
   fp32 chassis_relative_angle;      //the relative angle between chassis and gimbal.底盘与云台的相对角度，单位 rad
   fp32 chassis_relative_angle_set;  //the set relative angle.设置相对云台控制角度
-  fp32 chassis_yaw_set;             
+  fp32 chassis_yaw_set;        
+  fp32 chassis_relative_ecd; // 底盘与云台的相对角度，单位 rad 
 
   fp32 vx_max_speed;  //max forward speed, unit m/s.前进方向最大速度 单位m/s
   fp32 vx_min_speed;  //max backward speed, unit m/s.后退方向最大速度 单位m/s

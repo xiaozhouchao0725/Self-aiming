@@ -383,6 +383,7 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 
 
     fp32 vx_set = 0.0f, vy_set = 0.0f,angle_set;
+	fp32 relative_angle = 0.0f;
     //get three control set-point, 获取三个控制设置值
     chassis_behaviour_control_set(&vx_set, &vy_set, &angle_set, chassis_move_control);
 
@@ -438,20 +439,56 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
     }
 		else if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_BPIN)
     {
+		fp32 sin_yaw = 0.0f, cos_yaw = 0.0f;
+		relative_angle = chassis_move_control->chassis_yaw_motor->relative_angle;
 
-        fp32 sin_yaw = 0.0f, cos_yaw = 0.0f;			
-			  sin_yaw =(arm_sin_f32(-chassis_move_control->chassis_yaw_motor->relative_angle));
-        cos_yaw =(arm_cos_f32(-chassis_move_control->chassis_yaw_motor->relative_angle));
-			
-			  chassis_move_control->vx_set = cos_yaw * vx_set + sin_yaw * vy_set;
-        chassis_move_control->vy_set = -sin_yaw * vx_set + cos_yaw * vy_set;
-				
-				chassis_move_control->chassis_relative_angle_set = rad_format(0.0f);
-			//陀螺速度设定
-        fp32 chassis_wz = angle_set;
-        chassis_move_control->wz_set = chassis_wz;
-        chassis_move_control->vx_set = fp32_constrain(chassis_move_control->vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);
-        chassis_move_control->vy_set = fp32_constrain(chassis_move_control->vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
+		if (relative_angle > PI)
+			relative_angle = -2 * PI + relative_angle;
+		else if (relative_angle < -PI)
+			relative_angle = 2 * PI + relative_angle;
+		else
+			relative_angle = relative_angle;
+
+		// 角度补偿
+		if (chassis_move_control->chassis_power_MAX == 120)
+			relative_angle += Power_120_AngleCompensation;
+		else if(chassis_move_control->chassis_power_MAX == 100)
+			relative_angle += Power_100_AngleCompensation;
+		else if(chassis_move_control->chassis_power_MAX == 80)
+			relative_angle += Power_80_AngleCompensation;
+		else if(chassis_move_control->chassis_power_MAX == 70)
+			relative_angle += Power_70_AngleCompensation;
+		else if(chassis_move_control->chassis_power_MAX == 60)
+			relative_angle += Power_60_AngleCompensation;
+		else if(chassis_move_control->chassis_power_MAX == 50)
+			relative_angle += Power_50_AngleCompensation;
+		else	
+			relative_angle += -0.2;
+
+
+		sin_yaw = arm_sin_f32((relative_angle));
+		cos_yaw = arm_cos_f32((relative_angle));
+
+		chassis_move_control->vx_set = cos_yaw * vx_set + sin_yaw * vy_set;
+		chassis_move_control->vy_set = -1.0f * sin_yaw * vx_set + cos_yaw * vy_set;
+		chassis_move_control->chassis_relative_angle_set = rad_format(0.0);
+		
+		
+		
+		
+//        fp32 sin_yaw = 0.0f, cos_yaw = 0.0f;			
+//			  sin_yaw =(arm_sin_f32(-chassis_move_control->chassis_yaw_motor->relative_angle));
+//        cos_yaw =(arm_cos_f32(-chassis_move_control->chassis_yaw_motor->relative_angle));
+//			
+//			  chassis_move_control->vx_set = cos_yaw * vx_set + sin_yaw * vy_set;
+//        chassis_move_control->vy_set = -sin_yaw * vx_set + cos_yaw * vy_set;
+//				
+//				chassis_move_control->chassis_relative_angle_set = rad_format(0.0f);
+//			//陀螺速度设定
+//        fp32 chassis_wz = angle_set;
+//        chassis_move_control->wz_set = chassis_wz;
+//        chassis_move_control->vx_set = fp32_constrain(chassis_move_control->vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);
+//        chassis_move_control->vy_set = fp32_constrain(chassis_move_control->vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
 	
     }
 }
