@@ -579,6 +579,10 @@ static void gimbal_behavour_set(gimbal_control_t *gimbal_mode_set)
     {
       gimbal_behaviour = GIMBAL_AUTO_ATTACK;
     }
+	    else if (switch_is_down(gimbal_mode_set->gimbal_rc_ctrl->rc.s[0]))
+    {
+      gimbal_behaviour = GIMBAL_ZERO_FORCE;
+    }
      else if (mode == 1)
     {
       gimbal_behaviour = GIMBAL_ABSOLUTE_ANGLE;
@@ -592,10 +596,10 @@ static void gimbal_behavour_set(gimbal_control_t *gimbal_mode_set)
 //        gimbal_behaviour = GIMBAL_ABSOLUTE_SPIN;
 //      }
 //    }
-    else
-    {
-      gimbal_behaviour = GIMBAL_ZERO_FORCE;
-    }
+//    else if (switch_is_down(gimbal_mode_set->gimbal_rc_ctrl->rc.s[0]))
+//    {
+//      gimbal_behaviour = GIMBAL_ZERO_FORCE;
+//    }
   }
 
 //  else

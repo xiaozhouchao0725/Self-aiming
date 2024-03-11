@@ -632,58 +632,13 @@ static void chassis_bpin_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, c
 
     chassis_rc_to_control_vector(vx_set, vy_set, chassis_move_rc_to_vector);
 		//陀螺前进设定
-		switch (robot_state.chassis_power_limit)
-		{
-				case 45:
-				{
-						*vx_set*=1.2f;
-						*vy_set*=1.2f;
-						*wz_set =9.0f;
-						break;
-				}
-				case 50:
-				{
+
+				
 						*vx_set*=1.5f;
 						*vy_set*=1.5f;
 						*wz_set =10.0f;
-						break;
-				}
-				case 55:
-				{
-						*vx_set*=1.8f;
-						*vy_set*=1.8f;
-						*wz_set =11.0f;
-						break;
-				}
-				case 60:
-				{
-						*vx_set*=2.0f;
-						*vy_set*=2.0f;
-						*wz_set =12.0f;
-						break;
-				}
-				case 80:
-				{
-						*vx_set*=2.5f;
-						*vy_set*=2.5f;
-						*wz_set =16.0f;
-						break;
-				}
-				case 100:
-				{
-						*vx_set*=2.8f;
-						*vy_set*=2.8f;
-						*wz_set =20.0f;
-						break;
-				}
-				default:
-				{
-						*vx_set*=1.0f;
-						*vy_set*=1.0f;
-						*wz_set = 5;
-						break;
-				}
-		}
+
+				
 		//陀螺提速
     if(vx_set==0&&vy_set==0){
 				*wz_set*=2.0f;

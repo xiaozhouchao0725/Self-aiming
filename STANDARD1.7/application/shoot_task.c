@@ -263,9 +263,9 @@ int s=2000,l;
 //								break;
 //						}
 //				}
-				trigger_set = 12.0f;
-				if(robot_state.shooter_barrel_heat_limit - power_heat_data_t.shooter_id1_17mm_cooling_heat <= 40)
-					trigger_set = 9.0f;
+				trigger_set = 12.0f;//12.0f;
+//				if(robot_state.shooter_barrel_heat_limit - power_heat_data_t.shooter_id1_17mm_cooling_heat <= 40)
+//					trigger_set = 9.0f;
 		//拨弹
 		if(shoot_control.shoot_time < 35&&shoot_control.stuck_flag==0)
 		trigger_motor(trigger_set);
@@ -275,10 +275,10 @@ int s=2000,l;
 			trigger_motor(-10.0f);
 		else
 		trigger_motor(0);
-		if(robot_state.shooter_barrel_heat_limit - power_heat_data_t.shooter_id1_17mm_cooling_heat <= 30||shoot_control.fric_left_motor_measure->speed_rpm>-2000||shoot_control.fric_right_motor_measure->speed_rpm<2000|| !robot_state.power_management_shooter_output)
-		{
-			trigger_motor(0);
-		}
+//		if(robot_state.shooter_barrel_heat_limit - power_heat_data_t.shooter_id1_17mm_cooling_heat <= 30||shoot_control.fric_left_motor_measure->speed_rpm>-2000||shoot_control.fric_right_motor_measure->speed_rpm<2000|| !robot_state.power_management_shooter_output)
+//		{
+//			trigger_motor(0);
+//		}
 		shoot_control.shoot_time++;	
 		if(shoot_control.shoot_time >= 150) shoot_control.shoot_time = 150;
 		if(shoot_control.black_time>=150) shoot_control.black_time = 150;
@@ -341,28 +341,32 @@ static void shoot_feedback_update(void)
   */
 static void trigger_motor_turn_back(void)
 {
-			//根据电流值和时间判断是否卡弹
-			if(trigger_can_set_current >7500.0f)
-			{
-					shoot_control.block_time ++;
-					if(shoot_control.block_time > 200)
-					{	
-							shoot_control.stuck_flag = 1;
-							shoot_control.block_time = 0;
-					}
-			}
-			else
-			{
-					shoot_control.block_time = 0;
-			}
-			//卡弹回拨时间
-			if(shoot_control.stuck_flag == 1)
-			{
-					shoot_control.reverse_time ++;
-					if(shoot_control.reverse_time > 70)
-					{
-							shoot_control.reverse_time = 0;
-							shoot_control.stuck_flag = 0;
-					}
-			}
+            static int8_t press_l_last_s = 0;
+            //根据电流值和时间判断是否卡弹
+            if(fabs(shoot_control.trigger_speed) < 5 && (abs(shoot_control.shoot_rc->rc.ch[4]) > 500 || (press_l_last_s == 1 && shoot_control.press_l == 1)))
+            {
+                    shoot_control.block_time ++;
+                    if(shoot_control.block_time > 400)
+                    {    
+                            shoot_control.stuck_flag = 1;
+                            shoot_control.block_time = 0;
+                    }
+            }
+            else
+            {
+                    shoot_control.block_time = 0;
+            }
+            //卡弹回拨时间
+            if(shoot_control.stuck_flag == 1)
+            {
+                    shoot_control.reverse_time ++;
+                    if(shoot_control.reverse_time > 50)
+                    {
+                            shoot_control.reverse_time = 0;
+                            shoot_control.stuck_flag = 0;
+                    }
+            }
+            
+            press_l_last_s = shoot_control.press_l;
 }
+

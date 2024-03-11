@@ -366,10 +366,10 @@ static void gimbal_init(gimbal_control_t *init)
   init->gimbal_pitch_motor.gimbal_motor_mode = init->gimbal_pitch_motor.last_gimbal_motor_mode = GIMBAL_MOTOR_RAW;
   // 初始化云台电机二阶控制器
   gimbal_motor_second_order_linear_controller_init(&init->gimbal_yaw_motor.gimbal_motor_second_order_linear_controller, YAW_FEED_FORWARD, K_YAW_ANGLE_ERROR, K_YAW_ANGLE_SPEED, YAW_MAX_OUT, YAW_MIX_OUT);
-  gimbal_motor_second_order_linear_controller_init(&init->gimbal_pitch_motor.gimbal_motor_second_order_linear_controller, PITCH_FEED_FORWARD, K_PITCH_ANGLE_ERROR, K_PITCH_ANGLE_SPEED, PITCH_MAX_OUT, PITCH_MIX_OUT);
-  /*     //初始化电机pi
-      stm32_pid_yaw_init();
-      stm32_pid_pitch_init(); */
+//  gimbal_motor_second_order_linear_controller_init(&init->gimbal_pitch_motor.gimbal_motor_second_order_linear_controller, PITCH_FEED_FORWARD, K_PITCH_ANGLE_ERROR, K_PITCH_ANGLE_SPEED, PITCH_MAX_OUT, PITCH_MIX_OUT);
+  //初始化电机pi
+//  stm32_pid_yaw_init();
+  stm32_pid_pitch_init(); 
   // 初始化云台中值
   init->gimbal_pitch_motor.offset_ecd = 6866;
   init->gimbal_yaw_motor.offset_ecd = 6818;
@@ -680,9 +680,11 @@ static void gimbal_control_loop(gimbal_control_t *control_loop)
     {
       return;
     }
-    control_loop->gimbal_pitch_motor.current_set = gimbal_motor_second_order_linear_controller_calc(&(control_loop->gimbal_pitch_motor.gimbal_motor_second_order_linear_controller), control_loop->gimbal_pitch_motor.absolute_angle_set, control_loop->gimbal_pitch_motor.absolute_angle, control_loop->gimbal_pitch_motor.motor_gyro, control_loop->gimbal_pitch_motor.gimbal_motor_measure->given_current);
-    // 赋值电流值
-    control_loop->gimbal_pitch_motor.given_current = (int16_t)(control_loop->gimbal_pitch_motor.current_set);
+//    control_loop->gimbal_pitch_motor.current_set = gimbal_motor_second_order_linear_controller_calc(&(control_loop->gimbal_pitch_motor.gimbal_motor_second_order_linear_controller), control_loop->gimbal_pitch_motor.absolute_angle_set, control_loop->gimbal_pitch_motor.absolute_angle, control_loop->gimbal_pitch_motor.motor_gyro, control_loop->gimbal_pitch_motor.gimbal_motor_measure->given_current);
+//    // 赋值电流值
+//    control_loop->gimbal_pitch_motor.given_current = (int16_t)(control_loop->gimbal_pitch_motor.current_set);
+	 stm32_step_pitch(control_loop->gimbal_pitch_motor.absolute_angle_set, control_loop->gimbal_pitch_motor.absolute_angle, 0);
+    control_loop->gimbal_pitch_motor.given_current = stm32_Y_pitch.Out1;
   }
   else if (control_loop->gimbal_pitch_motor.gimbal_motor_mode == GIMBAL_MOTOR_ENCONDE)
   {
@@ -690,9 +692,11 @@ static void gimbal_control_loop(gimbal_control_t *control_loop)
     {
       return;
     }
-    control_loop->gimbal_yaw_motor.current_set = gimbal_motor_second_order_linear_controller_calc(&(control_loop->gimbal_yaw_motor.gimbal_motor_second_order_linear_controller), control_loop->gimbal_yaw_motor.absolute_angle_set, control_loop->gimbal_yaw_motor.absolute_angle, control_loop->gimbal_yaw_motor.motor_gyro, control_loop->gimbal_yaw_motor.gimbal_motor_measure->given_current);
-    // 赋值电流值
-    control_loop->gimbal_yaw_motor.given_current = (int16_t)(control_loop->gimbal_yaw_motor.current_set);
+//    control_loop->gimbal_yaw_motor.current_set = gimbal_motor_second_order_linear_controller_calc(&(control_loop->gimbal_yaw_motor.gimbal_motor_second_order_linear_controller), control_loop->gimbal_yaw_motor.absolute_angle_set, control_loop->gimbal_yaw_motor.absolute_angle, control_loop->gimbal_yaw_motor.motor_gyro, control_loop->gimbal_yaw_motor.gimbal_motor_measure->given_current);
+//    // 赋值电流值
+//    control_loop->gimbal_yaw_motor.given_current = (int16_t)(control_loop->gimbal_yaw_motor.current_set);
+	stm32_step_pitch(control_loop->gimbal_pitch_motor.relative_angle_set, control_loop->gimbal_pitch_motor.relative_angle, 0);
+    control_loop->gimbal_pitch_motor.given_current = stm32_Y_pitch.Out1;
   }
 }
 
