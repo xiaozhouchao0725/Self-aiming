@@ -28,6 +28,11 @@
 #define SHOOT_CAN 	hcan2
 #define CAP_CAN		hcan1
 
+
+#define CAN_FEEDBACK_FREAM_ID_A       0x11
+#define CAN_FEEDBACK_FREAM_ID_B       0x12
+#define CAN_CTRL_FREAM_ID             0x21        //CAN帧ID号
+
 /* CAN send and receive ID */
 typedef enum
 {
@@ -49,6 +54,13 @@ typedef enum
 		CAP_ID = 0x211,
     
 } can_msg_id_e;
+
+typedef enum
+{
+    BATTERY = 1,
+    CAPACITY,
+    OUT_OFF,
+}power_source_enum; 
 
 //RM 电机数据
 typedef struct
@@ -75,7 +87,44 @@ typedef struct
     fp32 power;
 } pm_measure_t;
 
+
+typedef struct 
+{
+    uint16_t    input_voltage;      //输入电压
+    uint16_t    current;            //输入电流
+    uint16_t    cap_voltage;        //电容电压
+    uint8_t     p_set;              //设定功率
+    uint8_t     crc_checksum;
+}can_feedback_a_typedef;  //CAN反馈数据A
+
+typedef struct 
+{
+    uint16_t    output_voltage;     //输出电压
+    uint8_t     power_source:7;       //电源来源
+    uint8_t     out_auto_en:1;     //控制输出是否自动控制
+    uint8_t     nc1;                
+    uint8_t     nc2;                
+    uint8_t     nc3;                
+    uint8_t     nc4;                //空
+    uint8_t     crc_checksum;
+}can_feedback_b_typedef;  //CAN反馈数据B
+
+typedef struct 
+{
+    uint8_t     p_set;                  //设定功率
+    uint8_t     power_source:7;           //控制电源来源-1前级电源  2电容组  3输出关闭
+    uint8_t     out_auto_en:1;     //控制输出是否自动控制
+    uint16_t    freq_feedback:15;       //反馈频率，默认100
+    uint16_t    wireless_en:1;          //无线开关
+    uint8_t     nc1;                
+    uint8_t     nc2;                
+    uint8_t     nc3;                    //空
+    uint8_t     crc_checksum;
+}can_control_typedef;  //CAN控制数据
+
 extern cap_measure_t get_cap;
+extern can_feedback_a_typedef get_capA;
+extern can_feedback_b_typedef get_capB;
 /**
   * @brief          发送电机控制电流(0x205,0x206,0x207,0x208)
   * @param[in]      yaw: (0x205) 6020电机控制电流, 范围 [-30000,30000]
@@ -114,7 +163,7 @@ extern void CAN_cmd_chassis(int16_t motor1, int16_t motor2, int16_t motor3, int1
 extern void CAN_cmd_shoot(int16_t s0, int16_t s1, int16_t s2, int16_t trigger);
 
 
-extern void CAN_cmd_cap(int16_t temPower);
+extern void CAN_cmd_cap(uint8_t temPower);
 /**
   * @brief          返回yaw 6020电机数据指针
   * @param[in]      none

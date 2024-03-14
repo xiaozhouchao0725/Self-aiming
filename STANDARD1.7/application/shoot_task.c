@@ -152,6 +152,7 @@ void shoot_init(void)
   */
 
 int8_t R = 0;
+int8_t C = 0;
 int s=2000,l;
  static void shoot_set_mode(void)
 {
@@ -275,10 +276,22 @@ int s=2000,l;
 			trigger_motor(-10.0f);
 		else
 		trigger_motor(0);
-//		if(robot_state.shooter_barrel_heat_limit - power_heat_data_t.shooter_id1_17mm_cooling_heat <= 30||shoot_control.fric_left_motor_measure->speed_rpm>-2000||shoot_control.fric_right_motor_measure->speed_rpm<2000|| !robot_state.power_management_shooter_output)
-//		{
-//			trigger_motor(0);
-//		}
+		
+		static int16_t last_key_C = 0;
+			if(!last_key_C&&shoot_control.shoot_rc->key.v & KEY_PRESSED_OFFSET_C)
+			{
+				C=!C;
+			}	
+			last_key_C = shoot_control.shoot_rc->key.v & KEY_PRESSED_OFFSET_C;
+			
+		if(robot_state.shooter_barrel_heat_limit - power_heat_data_t.shooter_id1_17mm_cooling_heat <= 10||shoot_control.fric_left_motor_measure->speed_rpm>-2000||shoot_control.fric_right_motor_measure->speed_rpm<2000|| !robot_state.power_management_shooter_output)
+		{
+			if(C==1&&shoot_control.press_l==1)
+			trigger_motor(9.0f);
+			else
+			trigger_motor(0);
+		}
+		
 		shoot_control.shoot_time++;	
 		if(shoot_control.shoot_time >= 150) shoot_control.shoot_time = 150;
 		if(shoot_control.black_time>=150) shoot_control.black_time = 150;
