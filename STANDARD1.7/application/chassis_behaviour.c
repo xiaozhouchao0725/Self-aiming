@@ -634,9 +634,9 @@ static void chassis_bpin_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, c
 		//陀螺前进设定
 
 				
-						*vx_set*=1.5f;
-						*vy_set*=1.5f;
-						*wz_set =10.0f;
+						*vx_set*=0.5f;//1.5f;
+						*vy_set*=0.5f;//1.5f;
+						*wz_set =15.0f;//10.0f;
 
 				
 		//陀螺提速

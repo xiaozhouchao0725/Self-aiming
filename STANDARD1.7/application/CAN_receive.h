@@ -123,8 +123,8 @@ typedef struct
 }can_control_typedef;  //CAN控制数据
 
 extern cap_measure_t get_cap;
-extern can_feedback_a_typedef get_capA;
-extern can_feedback_b_typedef get_capB;
+//extern can_feedback_a_typedef get_capA;
+//extern can_feedback_b_typedef get_capB;
 /**
   * @brief          发送电机控制电流(0x205,0x206,0x207,0x208)
   * @param[in]      yaw: (0x205) 6020电机控制电流, 范围 [-30000,30000]
@@ -163,7 +163,7 @@ extern void CAN_cmd_chassis(int16_t motor1, int16_t motor2, int16_t motor3, int1
 extern void CAN_cmd_shoot(int16_t s0, int16_t s1, int16_t s2, int16_t trigger);
 
 
-extern void CAN_cmd_cap(uint8_t temPower);
+extern void CAN_cmd_cap(int16_t temPower);
 /**
   * @brief          返回yaw 6020电机数据指针
   * @param[in]      none

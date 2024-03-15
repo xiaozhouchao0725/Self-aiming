@@ -596,13 +596,13 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 	
 	input_power = max_power_limit - chassis_move_control_loop->buffer_pid.out; //通过裁判系统的最大功率
 	
-	chassis_move_control_loop->power_control.power_charge = input_power; //超级电容的最大充电功率
+	chassis_move_control_loop->power_control.power_charge = input_power*100; //超级电容的最大充电功率
 	
-	if(chassis_move_control_loop->power_control.power_charge>13000)		chassis_move_control_loop->power_control.power_charge =13000; //参考超电控制板允许的最大充电功率，溪地板子的新老不一样
+	if(chassis_move_control_loop->power_control.power_charge>10000)		chassis_move_control_loop->power_control.power_charge =10000; //参考超电控制板允许的最大充电功率，溪地板子的新老不一样
 	
-	CAN_cmd_cap(150/*(uint8_t)(chassis_move_control_loop->power_control.power_charge*0.01f)*/); // 设置超电的充电功率
+	CAN_cmd_cap(chassis_move_control_loop->power_control.power_charge); // 设置超电的充电功率
 
-	if (get_capA.cap_voltage > 16) //当超电电压大于某个值(防止C620掉电)
+	if (get_cap.capvot > 16) //当超电电压大于某个值(防止C620掉电)
 	{
 		if (chassis_move.key_C == 8000)   //主动超电，一般用于起步加速or冲刺or飞坡or上坡，chassis_move.key_C为此代码中超电开启按键
 		{

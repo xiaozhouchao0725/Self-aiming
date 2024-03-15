@@ -28,7 +28,7 @@
 
 #include "detect_task.h"
 
-#include "crc8_crc16.h"
+//#include "crc8_crc16.h"
 extern CAN_HandleTypeDef hcan1;
 extern CAN_HandleTypeDef hcan2;
 //motor data read
@@ -52,17 +52,17 @@ static CAN_TxHeaderTypeDef  shoot_tx_message;
 static uint8_t              shoot_can_send_data[8];
 
 cap_measure_t get_cap;
-can_feedback_a_typedef get_capA;
-can_feedback_b_typedef get_capB;
+//can_feedback_a_typedef get_capA;
+//can_feedback_b_typedef get_capB;
 	
-static CAN_TxHeaderTypeDef  cap_tx_message = {0};
-//static uint8_t              cap_can_send_data[8];
+static CAN_TxHeaderTypeDef  cap_tx_message;
+static uint8_t              cap_can_send_data[8];
 		
 fp32 angle;
 	
-//CAN_TxHeaderTypeDef  cap_tx_message = {0};
-can_control_typedef cap_data = {0};
-uint32_t cap_send_mail_box;
+////CAN_TxHeaderTypeDef  cap_tx_message = {0};
+//can_control_typedef cap_data = {0};
+//uint32_t cap_send_mail_box;
 /**
   * @brief          hal库CAN回调函数,接收电机数据
   * @param[in]      hcan:CAN句柄指针
@@ -103,35 +103,35 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 							detect_hook(PITCH_GIMBAL_MOTOR_TOE);
 							break;
 					}
-//				case CAP_ID:
+				case CAP_ID:
+				{
+						get_cap.invot = (int16_t)(rx_data[1] << 8 | rx_data[0]);        
+						get_cap.capvot = (int16_t)(rx_data[3] << 8 | rx_data[2]);       
+						get_cap.current = (int16_t)(rx_data[5] << 8 | rx_data[4]);      
+						get_cap.power =(int16_t)(rx_data[7] << 8 | rx_data[6]); 
+						break;
+				}
+//				case CAN_FEEDBACK_FREAM_ID_A:
 //				{
-//						get_cap.invot = (int16_t)(rx_data[1] << 8 | rx_data[0]);        
-//						get_cap.capvot = (int16_t)(rx_data[3] << 8 | rx_data[2]);       
-//						get_cap.current = (int16_t)(rx_data[5] << 8 | rx_data[4]);      
-//						get_cap.power =(int16_t)(rx_data[7] << 8 | rx_data[6]); 
+//						get_capA.input_voltage = (int16_t)(rx_data[1] << 8 | rx_data[0]);       //输入电压					
+//						get_capA.current = (int16_t)(rx_data[3] << 8 | rx_data[2]);             //输入电流
+//						get_capA.cap_voltage = (int16_t)(rx_data[5] << 8 | rx_data[4]);         //电容电压
+//						get_capA.p_set = rx_data[6];                                            //设定功率
+//						get_capA.crc_checksum = rx_data[7];
 //						break;
 //				}
-				case CAN_FEEDBACK_FREAM_ID_A:
-				{
-						get_capA.input_voltage = (int16_t)(rx_data[1] << 8 | rx_data[0]);       //输入电压					
-						get_capA.current = (int16_t)(rx_data[3] << 8 | rx_data[2]);             //输入电流
-						get_capA.cap_voltage = (int16_t)(rx_data[5] << 8 | rx_data[4]);         //电容电压
-						get_capA.p_set = rx_data[6];                                            //设定功率
-						get_capA.crc_checksum = rx_data[7];
-						break;
-				}
-				case CAN_FEEDBACK_FREAM_ID_B:
-				{
-						get_capB.output_voltage = (int16_t)(rx_data[1] << 8 | rx_data[0]);       				
-						get_capB.power_source = rx_data[2];
-						get_capB.out_auto_en = rx_data[3];
-						get_capB.nc1 = rx_data[4];
-						get_capB.nc2 = rx_data[5];
-						get_capB.nc3 = rx_data[6];
-						get_capB.nc4 = 0;
-						get_capB.crc_checksum = rx_data[7];
-						break;
-				}
+//				case CAN_FEEDBACK_FREAM_ID_B:
+//				{
+//						get_capB.output_voltage = (int16_t)(rx_data[1] << 8 | rx_data[0]);       				
+//						get_capB.power_source = rx_data[2];
+//						get_capB.out_auto_en = rx_data[3];
+//						get_capB.nc1 = rx_data[4];
+//						get_capB.nc2 = rx_data[5];
+//						get_capB.nc3 = rx_data[6];
+//						get_capB.nc4 = 0;
+//						get_capB.crc_checksum = rx_data[7];
+//						break;
+//				}
 					default:
 					{
 							break;
@@ -274,34 +274,35 @@ void CAN_cmd_shoot(int16_t left, int16_t right, int16_t trigger,int16_t s)
     HAL_CAN_AddTxMessage(&SHOOT_CAN, &shoot_tx_message, shoot_can_send_data, &send_mail_box);
 }
 
-//void CAN_cmd_cap(int16_t temPower)//超级电容
-//{
-//    uint32_t send_mail_box;
-//    cap_tx_message.StdId = 0x210;
-//    cap_tx_message.IDE = CAN_ID_STD;
-//    cap_tx_message.RTR = CAN_RTR_DATA;
-//    cap_tx_message.DLC = 0x08;
-//	  cap_can_send_data[0] = temPower >> 8;
-//    cap_can_send_data[1] = temPower;
-
-//    HAL_CAN_AddTxMessage(&CAP_CAN, &cap_tx_message, cap_can_send_data, &send_mail_box);
-//}
-
-void CAN_cmd_cap(uint8_t temPower)//超级电容
+void CAN_cmd_cap(int16_t temPower)//超级电容
 {
-    cap_tx_message.StdId = CAN_CTRL_FREAM_ID;
+    uint32_t send_mail_box;
+    cap_tx_message.StdId = 0x210;
     cap_tx_message.IDE = CAN_ID_STD;
     cap_tx_message.RTR = CAN_RTR_DATA;
     cap_tx_message.DLC = 0x08;
-	cap_data.p_set = temPower;
-	cap_data.power_source = CAPACITY;
-	cap_data.out_auto_en = 0;
-	cap_data.wireless_en = 1;
-	cap_data.freq_feedback = 100;
+	  cap_can_send_data[0] = temPower >> 8;
+    cap_can_send_data[1] = temPower;
 
-	append_CRC8_check_sum((uint8_t *)&cap_data,sizeof(cap_data));
-    HAL_CAN_AddTxMessage(&CAP_CAN, &cap_tx_message, (uint8_t *)&cap_data, &cap_send_mail_box);
+    HAL_CAN_AddTxMessage(&CAP_CAN, &cap_tx_message, cap_can_send_data, &send_mail_box);
 }
+
+//void CAN_cmd_cap(uint8_t temPower)//超级电容
+//{
+//    cap_tx_message.StdId = CAN_CTRL_FREAM_ID;
+//    cap_tx_message.IDE = CAN_ID_STD;
+//    cap_tx_message.RTR = CAN_RTR_DATA;
+//    cap_tx_message.DLC = 0x08;
+//	cap_data.p_set = temPower;
+//	cap_data.power_source = CAPACITY;
+//	cap_data.out_auto_en = 0;
+//	cap_data.wireless_en = 1;
+//	cap_data.freq_feedback = 100;
+
+//	append_CRC8_check_sum((uint8_t *)&cap_data,sizeof(cap_data));
+//    HAL_CAN_AddTxMessage(&CAP_CAN, &cap_tx_message, (uint8_t *)&cap_data, &cap_send_mail_box);
+//}
+
 /**
   * @brief          返回yaw 6020电机数据指针
   * @param[in]      none

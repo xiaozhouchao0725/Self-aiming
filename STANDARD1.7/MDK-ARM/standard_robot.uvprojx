@@ -831,6 +831,11 @@
               <FilePath>..\application\INS_task.c</FilePath>
             </File>
             <File>
+              <FileName>chassis_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\application\chassis_task.c</FilePath>
+            </File>
+            <File>
               <FileName>remote_control.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\application\remote_control.c</FilePath>
@@ -844,11 +849,6 @@
               <FileName>vision_task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\application\vision_task.c</FilePath>
-            </File>
-            <File>
-              <FileName>chassis_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\application\chassis_task.c</FilePath>
             </File>
             <File>
               <FileName>CAN_receive.c</FileName>
