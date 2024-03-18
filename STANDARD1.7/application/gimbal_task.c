@@ -371,7 +371,7 @@ static void gimbal_init(gimbal_control_t *init)
 //  stm32_pid_yaw_init();
   stm32_pid_pitch_init(); 
   // 初始化云台中值
-  init->gimbal_pitch_motor.offset_ecd = 6866;
+  init->gimbal_pitch_motor.offset_ecd = 6851;
   init->gimbal_yaw_motor.offset_ecd = 6818;
   init->gimbal_yaw_motor.frist_ecd = init->gimbal_yaw_motor.offset_ecd;
   gimbal_feedback_update(init);

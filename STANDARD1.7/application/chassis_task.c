@@ -328,20 +328,20 @@ void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, chassis_move_t *ch
     //键盘控制
     if (chassis_move_rc_to_vector->chassis_RC->key.v & CHASSIS_FRONT_KEY)
     {
-        vx_set_channel = chassis_move_rc_to_vector->vx_max_speed;
+        vx_set_channel = 3.96;//chassis_move_rc_to_vector->vx_max_speed;
     }
     else if (chassis_move_rc_to_vector->chassis_RC->key.v & CHASSIS_BACK_KEY)
     {
-        vx_set_channel = chassis_move_rc_to_vector->vx_min_speed;
+        vx_set_channel = -3.96;//chassis_move_rc_to_vector->vx_min_speed;
     }
 
     if (chassis_move_rc_to_vector->chassis_RC->key.v & CHASSIS_LEFT_KEY)
     {
-        vy_set_channel = chassis_move_rc_to_vector->vy_max_speed;
+        vy_set_channel = 3.3;//chassis_move_rc_to_vector->vy_max_speed;
     }
     else if (chassis_move_rc_to_vector->chassis_RC->key.v & CHASSIS_RIGHT_KEY)
     {
-        vy_set_channel = chassis_move_rc_to_vector->vy_min_speed;
+        vy_set_channel = -3.3;//chassis_move_rc_to_vector->vy_min_speed;
     }
 
     //一阶低通滤波代替斜波作为底盘速度输入
@@ -477,8 +477,8 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 		
 		
 //        fp32 sin_yaw = 0.0f, cos_yaw = 0.0f;			
-		sin_yaw =(arm_sin_f32(-chassis_move_control->chassis_yaw_motor->relative_angle+0.25));
-        cos_yaw =(arm_cos_f32(-chassis_move_control->chassis_yaw_motor->relative_angle+0.25  ));
+		sin_yaw =(arm_sin_f32(-chassis_move_control->chassis_yaw_motor->relative_angle+0.55));
+        cos_yaw =(arm_cos_f32(-chassis_move_control->chassis_yaw_motor->relative_angle+0.55));
 			
 		chassis_move_control->vx_set = cos_yaw * vx_set + sin_yaw * vy_set;
         chassis_move_control->vy_set = -sin_yaw * vx_set + cos_yaw * vy_set;
@@ -590,7 +590,7 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 	chassis_move_control_loop->power_control.POWER_MAX = 0; //最终底盘的最大功率
 	chassis_move_control_loop->power_control.forecast_total_power = 0; // 预测总功率
 	
-	PID_calc(&chassis_move_control_loop->buffer_pid, chassis_move_control_loop->chassis_power_buffer, 10); //使缓冲能量维持在一个稳定的范围,这里的PID没必要移植我的，用任意一个就行
+	PID_calc(&chassis_move_control_loop->buffer_pid, chassis_move_control_loop->chassis_power_buffer, 20); //使缓冲能量维持在一个稳定的范围,这里的PID没必要移植我的，用任意一个就行
 
 	max_power_limit = chassis_move_control_loop->chassis_power_MAX;  //获得裁判系统的功率限制数值
 	

@@ -158,10 +158,10 @@ int s=2000,l;
 {
 		static int8_t press_l_last_s = 0;
 		fp32 fric_speed,trigger_set;
-		if(shoot_control.shoot_rc->key.v & KEY_PRESSED_OFFSET_C||shoot_control.close_time>100)
-			servo_pwm_set(1300,1);
+		if(shoot_control.shoot_rc->key.v & KEY_PRESSED_OFFSET_G||shoot_control.close_time>100)
+			servo_pwm_set(2300,1);
 		else 
-		servo_pwm_set(2100,1);
+		servo_pwm_set(1000,1);
 		if(shoot_control.shoot_rc->rc.ch[4] < 120 && shoot_control.shoot_rc->rc.ch[4] >-120)
 		{
 			shoot_control.close_time=0;
@@ -213,14 +213,14 @@ int s=2000,l;
 									shoot_control.lianfa_flag=0;
 						}
 						//·¢µ¯
-						if(shoot_control.bullet_flag == 1 && (shoot_control.shoot_rc->rc.ch[4] > 500 || (!press_l_last_s && shoot_control.press_l)) &&
-						(robot_state.shooter_barrel_heat_limit - power_heat_data_t.shooter_id1_17mm_cooling_heat >= 30)) 
+						if(shoot_control.bullet_flag == 1 && (shoot_control.shoot_rc->rc.ch[4] > 500 || (!press_l_last_s && shoot_control.press_l)) /*&&
+						(robot_state.shooter_barrel_heat_limit - power_heat_data_t.shooter_id1_17mm_cooling_heat >= 30)*/) 
 						{
 								shoot_control.shoot_flag = 1;
 								shoot_control.bullet_flag = 0;
 						}
 						else if((shoot_control.shoot_rc->rc.ch[4] < -500 || (press_l_last_s&&shoot_control.press_l))
-							&& (robot_state.shooter_barrel_heat_limit - power_heat_data_t.shooter_id1_17mm_cooling_heat >= 30)){
+							/*&& (robot_state.shooter_barrel_heat_limit - power_heat_data_t.shooter_id1_17mm_cooling_heat >= 30)*/){
 //								shoot_control.black_time++;
 								shoot_control.lianfa_flag=1;
 						}
@@ -286,8 +286,8 @@ int s=2000,l;
 			
 		if(robot_state.shooter_barrel_heat_limit - power_heat_data_t.shooter_id1_17mm_cooling_heat <= 10||shoot_control.fric_left_motor_measure->speed_rpm>-2000||shoot_control.fric_right_motor_measure->speed_rpm<2000|| !robot_state.power_management_shooter_output)
 		{
-			if(C==1&&shoot_control.press_l==1)
-			trigger_motor(9.0f);
+			if(C&&(shoot_control.press_l==1))
+			trigger_set = 9.0f;
 			else
 			trigger_motor(0);
 		}
