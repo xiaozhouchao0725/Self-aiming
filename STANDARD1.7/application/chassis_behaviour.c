@@ -223,6 +223,8 @@ static void chassis_bpin_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, c
 extern int8_t QA,EA;
 //就近对位标志位
 int8_t turn_flags;
+//尖角标志位
+int8_t sharp_angle;
 //highlight, the variable chassis behaviour mode 
 //留意，这个底盘行为模式变量
 chassis_behaviour_e chassis_behaviour_mode = CHASSIS_ZERO_FORCE;
@@ -482,7 +484,7 @@ static void chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_se
     }
     //channel value and keyboard value change to speed set-point, in general
     //遥控器的通道值以及键盘按键 得出 一般情况下的速度设定值
-    chassis_rc_to_control_vector(vx_set, vy_set, chassis_move_rc_to_vector);
+		chassis_rc_to_control_vector(vx_set, vy_set, chassis_move_rc_to_vector);
 		static int16_t last_key_Q = 0,last_key_E = 0;
 		fp32 angle_set_channel = 0;
 		//左右尖角
@@ -495,27 +497,35 @@ static void chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_se
 			EA=!EA;
 		}
 		if(QA && !EA)
+		{
 			angle_set_channel = 0.75f;
+			sharp_angle = 1;
+		}
 		else if(EA && !QA)
+		{
 			angle_set_channel = -0.75f;
+			sharp_angle = 1;
+		}
 		//就近对位
 		else if(chassis_move_rc_to_vector->chassis_yaw_motor->relative_angle>1.74f)
 		{
-		angle_set_channel = 3.14f;
-		turn_flags = 1;	
+			angle_set_channel = 3.14f;
+			turn_flags = 1;	
 		}
 		else if(chassis_move_rc_to_vector->chassis_yaw_motor->relative_angle<-1.74f)
 		{
-		angle_set_channel = -3.14f;
-		turn_flags = 1;				
+			angle_set_channel = -3.14f;
+			turn_flags = 1;				
 		}	
 		else 
-		{angle_set_channel = 0;
-		turn_flags = 0;
+		{
+			angle_set_channel = 0;
+			turn_flags = 0;
+			sharp_angle = 0;
 		}
-		last_key_Q = chassis_move_rc_to_vector->chassis_RC->key.v & KEY_PRESSED_OFFSET_Q;
-		last_key_E = chassis_move_rc_to_vector->chassis_RC->key.v & KEY_PRESSED_OFFSET_E;
-    *angle_set = angle_set_channel;
+			last_key_Q = chassis_move_rc_to_vector->chassis_RC->key.v & KEY_PRESSED_OFFSET_Q;
+			last_key_E = chassis_move_rc_to_vector->chassis_RC->key.v & KEY_PRESSED_OFFSET_E;
+			*angle_set = angle_set_channel;
 }
 
 /**

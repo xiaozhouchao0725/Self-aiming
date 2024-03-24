@@ -152,16 +152,45 @@ void shoot_init(void)
   */
 
 int8_t R = 0;
-int8_t C = 0;
+int8_t CBLOOD = 0;
+int8_t GR = 0;
 int s=2000,l;
  static void shoot_set_mode(void)
 {
 		static int8_t press_l_last_s = 0;
 		fp32 fric_speed,trigger_set;
-		if(shoot_control.shoot_rc->key.v & KEY_PRESSED_OFFSET_G||shoot_control.close_time>100)
+
+		static int16_t last_key_G = 0;
+		if(!last_key_G&&shoot_control.shoot_rc->key.v & KEY_PRESSED_OFFSET_G)
+		{
+				GR=!GR;
+		}
+		last_key_G = shoot_control.shoot_rc->key.v & KEY_PRESSED_OFFSET_G;
+
+	int rc_key_flag = 0;
+	if (!GR )
+	{
+		if (shoot_control.shoot_rc->rc.ch[4]<-600&&switch_is_mid(shoot_control.shoot_rc->rc.s[1]))
+		{
+			servo_pwm_set(1000,1);
+			rc_key_flag = 1;
+		}
+		else if (shoot_control.shoot_rc->rc.ch[4]>600&&switch_is_mid(shoot_control.shoot_rc->rc.s[1]))
+		{
 			servo_pwm_set(2300,1);
-		else 
+			rc_key_flag = 1;
+		}
+
+		if (rc_key_flag == 0&&switch_is_down(shoot_control.shoot_rc->rc.s[1]))
+		{
+			servo_pwm_set(2300,1);
+		}
+	}
+	else if (GR)
+	{
 		servo_pwm_set(1000,1);
+	}
+
 		if(shoot_control.shoot_rc->rc.ch[4] < 120 && shoot_control.shoot_rc->rc.ch[4] >-120)
 		{
 			shoot_control.close_time=0;
@@ -203,7 +232,7 @@ int s=2000,l;
 //								break;
 //						}
 //				}
-						fric_speed = 2.97;
+						fric_speed = 3.00;
 						shoot_fric(fric_speed);		
 						//·¢µ¯
 				   if(shoot_control.shoot_rc->rc.ch[4] <= 120 && shoot_control.shoot_rc->rc.ch[4] >=-120 && !press_l_last_s && !shoot_control.press_l)
@@ -280,13 +309,13 @@ int s=2000,l;
 		static int16_t last_key_C = 0;
 			if(!last_key_C&&shoot_control.shoot_rc->key.v & KEY_PRESSED_OFFSET_C)
 			{
-				C=!C;
+				CBLOOD=!CBLOOD;
 			}	
 			last_key_C = shoot_control.shoot_rc->key.v & KEY_PRESSED_OFFSET_C;
 			
-		if(robot_state.shooter_barrel_heat_limit - power_heat_data_t.shooter_id1_17mm_cooling_heat <= 10||shoot_control.fric_left_motor_measure->speed_rpm>-2000||shoot_control.fric_right_motor_measure->speed_rpm<2000|| !robot_state.power_management_shooter_output)
+		if(robot_state.shooter_barrel_heat_limit - power_heat_data_t.shooter_id1_17mm_cooling_heat <= 30/*||shoot_control.fric_left_motor_measure->speed_rpm>-2000||shoot_control.fric_right_motor_measure->speed_rpm<2000*/|| !robot_state.power_management_shooter_output)
 		{
-			if(C&&(shoot_control.press_l==1))
+			if(CBLOOD&&(shoot_control.press_l==1))
 			trigger_set = 9.0f;
 			else
 			trigger_motor(0);

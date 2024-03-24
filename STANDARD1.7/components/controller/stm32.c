@@ -69,7 +69,7 @@ void stm32_pid_yaw_init(void)  //yaw
 
 void stm32_pid_pitch_init(void)  //pitch
 {
-	stm32_U_pitch.P_P=1750;//2000;//850;
+	stm32_U_pitch.P_P=1025;//1750;//2000;//850;
 	stm32_U_pitch.P_I=0;
 	stm32_U_pitch.P_D=20;//3;
 	stm32_U_pitch.P_N=5;

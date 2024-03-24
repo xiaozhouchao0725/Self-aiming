@@ -372,8 +372,9 @@ static void gimbal_init(gimbal_control_t *init)
   stm32_pid_pitch_init(); 
   // 初始化云台中值
   init->gimbal_pitch_motor.offset_ecd = 6851;
-  init->gimbal_yaw_motor.offset_ecd = 6818;
+  init->gimbal_yaw_motor.offset_ecd = 2745;
   init->gimbal_yaw_motor.frist_ecd = init->gimbal_yaw_motor.offset_ecd;
+  init->gimbal_pitch_motor.frist_ecd = init->gimbal_pitch_motor.offset_ecd;
   gimbal_feedback_update(init);
   init->gimbal_yaw_motor.absolute_angle_set = init->gimbal_yaw_motor.absolute_angle;
   init->gimbal_yaw_motor.relative_angle_set = init->gimbal_yaw_motor.relative_angle;
@@ -385,8 +386,8 @@ static void gimbal_init(gimbal_control_t *init)
   init->gimbal_pitch_motor.motor_gyro_set = init->gimbal_pitch_motor.motor_gyro;
   init->gimbal_yaw_motor.max_relative_angle = 2.10f;
   init->gimbal_yaw_motor.min_relative_angle = -2.60f;
-  init->gimbal_pitch_motor.min_relative_angle = -0.352048606f;
-  init->gimbal_pitch_motor.max_relative_angle = 0.216291294f;
+  init->gimbal_pitch_motor.min_relative_angle = -0.233932078f;
+  init->gimbal_pitch_motor.max_relative_angle = 0.199417502f;
 }
 
 /**

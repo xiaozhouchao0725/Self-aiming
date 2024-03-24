@@ -29,7 +29,6 @@
 #include "INS_task.h"
 int anglesr;
 #include "referee.h"
-int8_t fly_flag=0;
 #define rc_deadband_limit(input, output, dealine)        \
     {                                                    \
         if ((input) > (dealine) || (input) < -(dealine)) \
@@ -94,6 +93,7 @@ int8_t QA=0,EA=0;
 //控制设置电容设定功率信息的频率
 int16_t cnts=0,cntss=0;
 //int16_t set = 100;
+int8_t FCHO = 0;
 extern gimbal_control_t gimbal_control;
 /**
   * @brief          底盘任务，间隔 CHASSIS_CONTROL_TIME_MS 2ms
@@ -325,7 +325,7 @@ void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, chassis_move_t *ch
     vx_set_channel = vx_channel * CHASSIS_VX_RC_SEN;
     vy_set_channel = vy_channel * -CHASSIS_VY_RC_SEN;
 
-    //键盘控制
+   //键盘控制
     if (chassis_move_rc_to_vector->chassis_RC->key.v & CHASSIS_FRONT_KEY)
     {
         vx_set_channel = 3.96;//chassis_move_rc_to_vector->vx_max_speed;
@@ -440,7 +440,7 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 		else if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_BPIN)
     {
 		fp32 sin_yaw = 0.0f, cos_yaw = 0.0f;
-		relative_angle = chassis_move_control->chassis_yaw_motor->relative_angle;
+		relative_angle = chassis_move_control->chassis_yaw_motor->relative_angle-0.55;
 
 //		if (relative_angle > PI)
 //			relative_angle = -2 * PI + relative_angle;
@@ -477,8 +477,8 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 		
 		
 //        fp32 sin_yaw = 0.0f, cos_yaw = 0.0f;			
-		sin_yaw =(arm_sin_f32(-chassis_move_control->chassis_yaw_motor->relative_angle+0.55));
-        cos_yaw =(arm_cos_f32(-chassis_move_control->chassis_yaw_motor->relative_angle+0.55));
+		sin_yaw =(arm_sin_f32(-relative_angle));
+        cos_yaw =(arm_cos_f32(-relative_angle));
 			
 		chassis_move_control->vx_set = cos_yaw * vx_set + sin_yaw * vy_set;
         chassis_move_control->vy_set = -sin_yaw * vx_set + cos_yaw * vy_set;
@@ -504,10 +504,10 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 static void chassis_vector_to_mecanum_wheel_speed(const fp32 vx_set, const fp32 vy_set, const fp32 wz_set, fp32 wheel_speed[4])
 {
     //旋转的时候， 由于云台靠前，所以是前面两轮 0 ，1 旋转的速度变慢， 后面两轮 2,3 旋转的速度变快
-	  wheel_speed[0] = -vx_set + vy_set + (CHASSIS_WZ_SET_SCALE - 1.00f) * MOTOR_DISTANCE_TO_CENTER * wz_set;
-    wheel_speed[1] = vx_set + vy_set + (CHASSIS_WZ_SET_SCALE - 1.00f) * MOTOR_DISTANCE_TO_CENTER * wz_set;
-    wheel_speed[2] = vx_set - vy_set + (-CHASSIS_WZ_SET_SCALE - 1.00f) * MOTOR_DISTANCE_TO_CENTER * wz_set;
-    wheel_speed[3] = -vx_set - vy_set + (-CHASSIS_WZ_SET_SCALE - 1.00f) * MOTOR_DISTANCE_TO_CENTER * wz_set;
+	wheel_speed[0] = vx_set - vy_set + (CHASSIS_WZ_SET_SCALE - 1.00f) * MOTOR_DISTANCE_TO_CENTER * wz_set;
+    wheel_speed[1] = -vx_set - vy_set + (CHASSIS_WZ_SET_SCALE - 1.00f) * MOTOR_DISTANCE_TO_CENTER * wz_set;
+    wheel_speed[2] = -vx_set + vy_set + (-CHASSIS_WZ_SET_SCALE - 1.00f) * MOTOR_DISTANCE_TO_CENTER * wz_set;
+    wheel_speed[3] = vx_set + vy_set + (-CHASSIS_WZ_SET_SCALE - 1.00f) * MOTOR_DISTANCE_TO_CENTER * wz_set;
 }
 
 
@@ -570,15 +570,16 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 			chassis_move_control_loop->power_control.speed[i] = chassis_move_control_loop->power_control.SPEED_MIN;
 		}
 	}
-	
-	if(chassis_move_control_loop->chassis_RC->key.v & KEY_PRESSED_OFFSET_F )
+
+	static int16_t last_key_F = 0;
+	if(!last_key_F&&chassis_move_control_loop->chassis_RC->key.v & KEY_PRESSED_OFFSET_F)
 	{
-		chassis_move.key_C = 8000;
-	}
-	else
-	{
-		chassis_move.key_C = 0;
-	}
+		FCHO=!FCHO;
+	}	
+	last_key_F = chassis_move_control_loop->chassis_RC->key.v & KEY_PRESSED_OFFSET_F;
+			
+	if((get_cap.capvot/100) < 18.0)
+		FCHO=0;
 	
 	uint16_t max_power_limit = 40;
 	fp32 input_power = 0;		 // 输入功率(缓冲能量环)
@@ -590,7 +591,7 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 	chassis_move_control_loop->power_control.POWER_MAX = 0; //最终底盘的最大功率
 	chassis_move_control_loop->power_control.forecast_total_power = 0; // 预测总功率
 	
-	PID_calc(&chassis_move_control_loop->buffer_pid, chassis_move_control_loop->chassis_power_buffer, 20); //使缓冲能量维持在一个稳定的范围,这里的PID没必要移植我的，用任意一个就行
+	PID_calc(&chassis_move_control_loop->buffer_pid, chassis_move_control_loop->chassis_power_buffer,30); //使缓冲能量维持在一个稳定的范围,这里的PID没必要移植我的，用任意一个就行
 
 	max_power_limit = chassis_move_control_loop->chassis_power_MAX;  //获得裁判系统的功率限制数值
 	
@@ -602,9 +603,9 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 	
 	CAN_cmd_cap(chassis_move_control_loop->power_control.power_charge); // 设置超电的充电功率
 
-	if (get_cap.capvot > 16) //当超电电压大于某个值(防止C620掉电)
+	if ((get_cap.capvot/100) > 16) //当超电电压大于某个值(防止C620掉电)
 	{
-		if (chassis_move.key_C == 8000)   //主动超电，一般用于起步加速or冲刺or飞坡or上坡，chassis_move.key_C为此代码中超电开启按键
+		if (FCHO)   //主动超电，一般用于起步加速or冲刺or飞坡or上坡，chassis_move.key_C为此代码中超电开启按键
 		{
 			chassis_move_control_loop->power_control.POWER_MAX = 150;		
 		}
