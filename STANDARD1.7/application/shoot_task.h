@@ -148,6 +148,7 @@ typedef struct
 		bool_t shoot_continu_flag;	//ÍËµ¥
 		bool_t stuck_flag;					//¿¨µ¯
 		
+		
 } shoot_control_t;
 
 extern void shoot_task(void const *pvParameters);

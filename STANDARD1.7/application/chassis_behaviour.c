@@ -220,7 +220,7 @@ static void chassis_open_set_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, c
 static void chassis_bpin_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
 
 
-extern int8_t QA,EA;
+extern int8_t QA;
 //就近对位标志位
 int8_t turn_flags;
 //尖角标志位
@@ -485,25 +485,17 @@ static void chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_se
     //channel value and keyboard value change to speed set-point, in general
     //遥控器的通道值以及键盘按键 得出 一般情况下的速度设定值
 		chassis_rc_to_control_vector(vx_set, vy_set, chassis_move_rc_to_vector);
-		static int16_t last_key_Q = 0,last_key_E = 0;
+		static int16_t last_key_Q = 0;
 		fp32 angle_set_channel = 0;
 		//左右尖角
 		if(!last_key_Q && chassis_move_rc_to_vector->chassis_RC->key.v & KEY_PRESSED_OFFSET_Q)
 		{
 			QA=!QA;
 		}
-		else if(!last_key_E && chassis_move_rc_to_vector->chassis_RC->key.v & KEY_PRESSED_OFFSET_E)
-		{
-			EA=!EA;
-		}
-		if(QA && !EA)
+		
+		if(QA)
 		{
 			angle_set_channel = 0.75f;
-			sharp_angle = 1;
-		}
-		else if(EA && !QA)
-		{
-			angle_set_channel = -0.75f;
 			sharp_angle = 1;
 		}
 		//就近对位
@@ -524,7 +516,6 @@ static void chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_se
 			sharp_angle = 0;
 		}
 			last_key_Q = chassis_move_rc_to_vector->chassis_RC->key.v & KEY_PRESSED_OFFSET_Q;
-			last_key_E = chassis_move_rc_to_vector->chassis_RC->key.v & KEY_PRESSED_OFFSET_E;
 			*angle_set = angle_set_channel;
 }
 
@@ -644,9 +635,9 @@ static void chassis_bpin_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, c
 		//陀螺前进设定
 
 				
-						*vx_set*=0.65f;//1.5f;
-						*vy_set*=0.65f;//1.5f;
-						*wz_set =15.0f;//10.0f;
+						*vx_set*=1.5f;//1.5f;
+						*vy_set*=1.5f;//1.5f;
+						*wz_set =15.0f;//3.5f;//10.0f;
 
 				
 		//陀螺提速

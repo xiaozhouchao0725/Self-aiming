@@ -364,7 +364,7 @@ const motor_measure_t *get_can_3508_right_measure_point(void)
 }
 /**
   * @brief          ·µ»Øµ×ÅÌµç»ú 3508µç»úÊý¾ÝÖ¸Õë
-  * @param[in]      i: µç»ú±àºÅ,·¶Î §[0,3]
+  * @param[in]      i: µç»ú±àºÅ,·¶? ?[0,3]
   * @retval         µç»úÊý¾ÝÖ¸Õë
   */
 const motor_measure_t *get_chassis_motor_measure_point(uint8_t i)

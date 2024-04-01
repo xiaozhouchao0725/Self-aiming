@@ -350,8 +350,6 @@ static void gimbal_init(gimbal_control_t *init)
 
   const static fp32 yaw_vision_pid[3] = {YAW_VISION_PID_KP, YAW_VISION_PID_KI, YAW_VISION_PID_KD};
   const static fp32 pitch_vision_pid[3] = {PITCH_VISION_PID_KP, PITCH_VISION_PID_KI, PITCH_VISION_PID_KD};
-  // 继电器控制云台电源
-//  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, GPIO_PIN_RESET);
   // 电机数据指针获取
   init->gimbal_yaw_motor.gimbal_motor_measure = get_yaw_gimbal_motor_measure_point();
   init->gimbal_pitch_motor.gimbal_motor_measure = get_pitch_gimbal_motor_measure_point();
@@ -371,10 +369,9 @@ static void gimbal_init(gimbal_control_t *init)
 //  stm32_pid_yaw_init();
   stm32_pid_pitch_init(); 
   // 初始化云台中值
-  init->gimbal_pitch_motor.offset_ecd = 6851;
+  init->gimbal_pitch_motor.offset_ecd = 4057;
   init->gimbal_yaw_motor.offset_ecd = 2745;
   init->gimbal_yaw_motor.frist_ecd = init->gimbal_yaw_motor.offset_ecd;
-  init->gimbal_pitch_motor.frist_ecd = init->gimbal_pitch_motor.offset_ecd;
   gimbal_feedback_update(init);
   init->gimbal_yaw_motor.absolute_angle_set = init->gimbal_yaw_motor.absolute_angle;
   init->gimbal_yaw_motor.relative_angle_set = init->gimbal_yaw_motor.relative_angle;
@@ -386,8 +383,8 @@ static void gimbal_init(gimbal_control_t *init)
   init->gimbal_pitch_motor.motor_gyro_set = init->gimbal_pitch_motor.motor_gyro;
   init->gimbal_yaw_motor.max_relative_angle = 2.10f;
   init->gimbal_yaw_motor.min_relative_angle = -2.60f;
-  init->gimbal_pitch_motor.min_relative_angle = -0.233932078f;
-  init->gimbal_pitch_motor.max_relative_angle = 0.199417502f;
+  init->gimbal_pitch_motor.min_relative_angle = -0.223961204f;
+  init->gimbal_pitch_motor.max_relative_angle = 0.217825279f;
 }
 
 /**

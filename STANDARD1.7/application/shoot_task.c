@@ -88,9 +88,7 @@ void shoot_task(void const *pvParameters)
 		{
 				shoot_set_mode();
 				shoot_feedback_update();
-				shoot_control_loop();		 //设置发弹控制量
-//			  if ((toe_is_error(FRIC_LEFT_MOTOR_TOE) || toe_is_error(FRIC_RIGHT_MOTOR_TOE)	|| toe_is_error(TRIGGER_MOTOR_TOE)))
-//        {
+				shoot_control_loop();		 //设置发弹控制量			 
             if (toe_is_error(DBUS_TOE))
             {
                 CAN_cmd_shoot(0, 0, 0, 0);
@@ -99,7 +97,6 @@ void shoot_task(void const *pvParameters)
             {
 				CAN_cmd_shoot(left_can_set_current,right_can_set_current,trigger_can_set_current,0);
             }
-//        }
 				vTaskDelay(SHOOT_CONTROL_TIME_MS);
 		}
 }
@@ -151,12 +148,12 @@ void shoot_init(void)
   * @retval         void
   */
 
-int8_t R = 0;
-int8_t CBLOOD = 0;
-int8_t GR = 0;
+int8_t R = 0,CBLOOD = 0,GR = 0,ET = 0;
 int s=2000,l;
  static void shoot_set_mode(void)
 {
+		shoot_control.heat_limit = robot_state.shooter_barrel_heat_limit;
+	
 		static int8_t press_l_last_s = 0;
 		fp32 fric_speed,trigger_set;
 
@@ -207,31 +204,8 @@ int s=2000,l;
 		last_key_R = shoot_control.shoot_rc->key.v & KEY_PRESSED_OFFSET_R;
 		if ((switch_is_up(shoot_control.shoot_rc->rc.s[1]) || R) && robot_state.power_management_shooter_output)
     {
-				laser_on();
-				trigger_motor_turn_back();
-//				switch (robot_state.shooter_id1_17mm_speed_limit)
-//				{
-//						case 15:
-//						{
-//								fric_speed = 1.81;
-//								break;
-//						}					
-//						case 18:
-//						{
-//								fric_speed = 1.98;//14->4900  16->5900
-//								break;
-//						}
-//						case 30:
-//						{		
-//								fric_speed = 2.97;//14->4900  16->5900
-//								break;
-//						}
-//						default:
-//						{
-//								fric_speed = 1.81;
-//								break;
-//						}
-//				}
+						laser_on();
+						trigger_motor_turn_back();
 						fric_speed = 3.00;
 						shoot_fric(fric_speed);		
 						//发弹
@@ -292,8 +266,22 @@ int s=2000,l;
 //								trigger_set = 12.0f;
 //								break;
 //						}
-//				}
-				trigger_set = 12.0f;//12.0f;
+//				}				
+		static int16_t last_key_E = 0;
+		if(!last_key_E&&shoot_control.shoot_rc->key.v & KEY_PRESSED_OFFSET_E)
+		{
+				ET=!ET;
+		}
+		last_key_E = shoot_control.shoot_rc->key.v & KEY_PRESSED_OFFSET_E;
+		
+		if(ET)
+		{
+			trigger_set = 18.0f;
+			shoot_control.heat_limit -= 10;
+		}
+		else if(!ET)
+			trigger_set = 12.0f;
+
 //				if(robot_state.shooter_barrel_heat_limit - power_heat_data_t.shooter_id1_17mm_cooling_heat <= 40)
 //					trigger_set = 9.0f;
 		//拨弹
@@ -313,7 +301,7 @@ int s=2000,l;
 			}	
 			last_key_C = shoot_control.shoot_rc->key.v & KEY_PRESSED_OFFSET_C;
 			
-		if(robot_state.shooter_barrel_heat_limit - power_heat_data_t.shooter_id1_17mm_cooling_heat <= 30/*||shoot_control.fric_left_motor_measure->speed_rpm>-2000||shoot_control.fric_right_motor_measure->speed_rpm<2000*/|| !robot_state.power_management_shooter_output)
+		if(shoot_control.heat_limit - power_heat_data_t.shooter_id1_17mm_cooling_heat <= 30/*||shoot_control.fric_left_motor_measure->speed_rpm>-2000||shoot_control.fric_right_motor_measure->speed_rpm<2000*/|| !robot_state.power_management_shooter_output)
 		{
 			if(CBLOOD&&(shoot_control.press_l==1))
 			trigger_set = 9.0f;

@@ -127,7 +127,7 @@
 #define GIMBAL_INIT_TIME            6000
 #define GIMBAL_CALI_REDUNDANT_ANGLE 0.1f
 //云台初始化回中值的速度以及控制到的角度
-#define GIMBAL_INIT_PITCH_SPEED     0.004f
+#define GIMBAL_INIT_PITCH_SPEED     0.000f
 #define GIMBAL_INIT_YAW_SPEED       0.005f
 
 #define INIT_YAW_SET    0.0f
