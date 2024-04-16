@@ -103,7 +103,7 @@
 #define NORMAL_MAX_CHASSIS_SPEED_X 4.0f
 //chassis left or right max speed
 //底盘运动过程最大平移速度
-#define NORMAL_MAX_CHASSIS_SPEED_Y 3.5f
+#define NORMAL_MAX_CHASSIS_SPEED_Y 4.0f
 
 #define CHASSIS_WZ_SET_SCALE 0.0f
 
@@ -133,8 +133,8 @@
 //底盘电机功率环PID
 #define M3505_MOTOR_POWER_PID_KP 1.0f
 #define M3505_MOTOR_POWER_PID_KI 0.f
-#define M3505_MOTOR_POWER_PID_KD 0.f
-#define M3505_MOTOR_POWER_PID_MAX_OUT 15.0f
+#define M3505_MOTOR_POWER_PID_KD 0.1f
+#define M3505_MOTOR_POWER_PID_MAX_OUT 10.0f
 #define M3505_MOTOR_POWER_PID_MAX_IOUT 10.0f
 
 // 角度补偿参数

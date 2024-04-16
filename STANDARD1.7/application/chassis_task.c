@@ -27,7 +27,6 @@
 #include "CAN_receive.h"
 #include "detect_task.h"
 #include "INS_task.h"
-int anglesr;
 #include "referee.h"
 #define rc_deadband_limit(input, output, dealine)        \
     {                                                    \
@@ -88,12 +87,9 @@ uint32_t chassis_high_water;
 #endif
 //底盘运动数据
 chassis_move_t chassis_move;
-//尖角开关
-int8_t QA=0;
-//控制设置电容设定功率信息的频率
-int8_t feipo = 0;
-//int16_t set = 100;
-int8_t FCHO = 0;
+//定义QA尖角标志位，feipo飞坡标志位，FCHO超电标志位
+int8_t QA = 0,feipo = 0,FCHO = 0;
+
 extern gimbal_control_t gimbal_control;
 /**
   * @brief          底盘任务，间隔 CHASSIS_CONTROL_TIME_MS 2ms
@@ -106,19 +102,6 @@ void chassis_task(void const *pvParameters)
     vTaskDelay(CHASSIS_TASK_INIT_TIME);
     //底盘初始化
     chassis_init(&chassis_move);
-    //判断底盘电机是否都在线
-//    while (toe_is_error(CHASSIS_MOTOR1_TOE) || toe_is_error(CHASSIS_MOTOR2_TOE) || toe_is_error(CHASSIS_MOTOR3_TOE) || toe_is_error(CHASSIS_MOTOR4_TOE) || toe_is_error(DBUS_TOE))
-//    {
-//		//赛场检录提前给电容充电
-//		cntss++;
-//		if(cntss%50==0){
-//		CAN_cmd_cap(11000);
-//		}
-//		if(cntss>=5001)
-//			cntss=0;
-//        vTaskDelay(CHASSIS_CONTROL_TIME_MS);
-//    }
-
     while (1)
     {
         //设置底盘控制模式
@@ -141,8 +124,6 @@ void chassis_task(void const *pvParameters)
             }
             else
             {
-                //发送控制电流
-//							PID_calc(chassis_move.motor_speed_pid, chassis_move.motor_chassis[0].speed, set);
                 CAN_cmd_chassis(chassis_move.motor_chassis[0].give_current, chassis_move.motor_chassis[1].give_current,
                                 chassis_move.motor_chassis[2].give_current, chassis_move.motor_chassis[3].give_current);
             }
@@ -172,7 +153,8 @@ static void chassis_init(chassis_move_t *chassis_move_init)
     const static fp32 motor_speed_pid[3] = {M3505_MOTOR_SPEED_PID_KP, M3505_MOTOR_SPEED_PID_KI, M3505_MOTOR_SPEED_PID_KD};
     //底盘角度pid值
     const static fp32 chassis_yaw_pid[3] = {CHASSIS_FOLLOW_GIMBAL_PID_KP, CHASSIS_FOLLOW_GIMBAL_PID_KI, CHASSIS_FOLLOW_GIMBAL_PID_KD};
-	const static fp32 power_buffer_pid[3] = {M3505_MOTOR_POWER_PID_KP, M3505_MOTOR_POWER_PID_KI, M3505_MOTOR_POWER_PID_KD }; //功率环PID参数
+    //功率环PID参数
+	const static fp32 power_buffer_pid[3] = {M3505_MOTOR_POWER_PID_KP, M3505_MOTOR_POWER_PID_KI, M3505_MOTOR_POWER_PID_KD }; 
 
     const static fp32 chassis_x_order_filter[1] = {CHASSIS_ACCEL_X_NUM};
     const static fp32 chassis_y_order_filter[1] = {CHASSIS_ACCEL_Y_NUM};
@@ -182,9 +164,6 @@ static void chassis_init(chassis_move_t *chassis_move_init)
     chassis_move_init->chassis_mode = CHASSIS_VECTOR_RAW;
     //获取遥控器指针
     chassis_move_init->chassis_RC = get_remote_control_point();
-		//底盘不需要读取陀螺仪数据
-//    //获取陀螺仪姿态角指针
-//    chassis_move_init->chassis_INS_angle = get_INS_angle_point();
     //获取云台电机数据指针
     chassis_move_init->chassis_yaw_motor = get_yaw_motor_point();
     chassis_move_init->chassis_pitch_motor = get_pitch_motor_point();
@@ -226,11 +205,6 @@ static void chassis_set_mode(chassis_move_t *chassis_move_mode)
     {
         return;
     }
-		//车宽UI
-		anglesr=abs((int)(chassis_move.chassis_yaw_motor->relative_angle*100));
-		if(anglesr>157&&anglesr<314){
-		anglesr=314-anglesr;
-		}
     //in file "chassis_behaviour.c"
     chassis_behaviour_mode_set(chassis_move_mode);
 }
@@ -295,10 +269,6 @@ static void chassis_feedback_update(chassis_move_t *chassis_move_update)
     chassis_move_update->vy = (-chassis_move_update->motor_chassis[0].speed - chassis_move_update->motor_chassis[1].speed + chassis_move_update->motor_chassis[2].speed + chassis_move_update->motor_chassis[3].speed) * MOTOR_SPEED_TO_CHASSIS_SPEED_VY;
     chassis_move_update->wz = (-chassis_move_update->motor_chassis[0].speed - chassis_move_update->motor_chassis[1].speed - chassis_move_update->motor_chassis[2].speed - chassis_move_update->motor_chassis[3].speed) * MOTOR_SPEED_TO_CHASSIS_SPEED_WZ / MOTOR_DISTANCE_TO_CENTER;
 
-//    //计算底盘姿态角度, 如果底盘上有陀螺仪请更改这部分代码
-//    chassis_move_update->chassis_yaw = rad_format(*(chassis_move_update->chassis_INS_angle + INS_YAW_ADDRESS_OFFSET) - chassis_move_update->chassis_yaw_motor->relative_angle);
-//    chassis_move_update->chassis_pitch = rad_format(*(chassis_move_update->chassis_INS_angle + INS_PITCH_ADDRESS_OFFSET) - chassis_move_update->chassis_pitch_motor->relative_angle);
-//    chassis_move_update->chassis_roll = *(chassis_move_update->chassis_INS_angle + INS_ROLL_ADDRESS_OFFSET);
 }
 
 /**
@@ -360,12 +330,6 @@ void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, chassis_move_t *ch
 
     *vx_set = chassis_move_rc_to_vector->chassis_cmd_slow_set_vx.out;
     *vy_set = chassis_move_rc_to_vector->chassis_cmd_slow_set_vy.out;
-		
-		if(chassis_move_rc_to_vector->chassis_RC->key.v & KEY_PRESSED_OFFSET_Z)
-		{
-				*vx_set = 0.0f;
-				*vy_set = 0.0f;
-		}
 }
 
 /**
@@ -387,7 +351,6 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
     //get three control set-point, 获取三个控制设置值
     chassis_behaviour_control_set(&vx_set, &vy_set, &angle_set, chassis_move_control);
 
-		
     //跟随云台模式
     if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
     {
@@ -440,43 +403,9 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 		else if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_BPIN)
     {
 		fp32 sin_yaw = 0.0f, cos_yaw = 0.0f;
+        //-0.45为该车角度补偿值可修改
 		relative_angle = (fp64)chassis_move_control->chassis_yaw_motor->relative_angle-0.45;
 
-//		if (relative_angle > PI)
-//			relative_angle = -2 * PI + relative_angle;
-//		else if (relative_angle < -PI)
-//			relative_angle = 2 * PI + relative_angle;
-//		else
-//			relative_angle = relative_angle;
-
-//		// 角度补偿
-//		if (chassis_move_control->chassis_power_MAX == 120)
-//			relative_angle += Power_120_AngleCompensation;
-//		else if(chassis_move_control->chassis_power_MAX == 100)
-//			relative_angle += Power_100_AngleCompensation;
-//		else if(chassis_move_control->chassis_power_MAX == 80)
-//			relative_angle += Power_80_AngleCompensation;
-//		else if(chassis_move_control->chassis_power_MAX == 70)
-//			relative_angle += Power_70_AngleCompensation;
-//		else if(chassis_move_control->chassis_power_MAX == 60)
-//			relative_angle += Power_60_AngleCompensation;
-//		else if(chassis_move_control->chassis_power_MAX == 50)
-//			relative_angle += Power_50_AngleCompensation;
-//		else	
-//			relative_angle += -0.2;
-
-
-//		sin_yaw = arm_sin_f32((relative_angle));
-//		cos_yaw = arm_cos_f32((relative_angle));
-
-//		chassis_move_control->vx_set = cos_yaw * vx_set + sin_yaw * vy_set;
-//		chassis_move_control->vy_set = -1.0f * sin_yaw * vx_set + cos_yaw * vy_set;
-//		chassis_move_control->chassis_relative_angle_set = rad_format(0.0);
-//		
-//		
-		
-		
-//        fp32 sin_yaw = 0.0f, cos_yaw = 0.0f;			
 		sin_yaw =(arm_sin_f32(-relative_angle));
         cos_yaw =(arm_cos_f32(-relative_angle));
 			
@@ -503,16 +432,10 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
   */
 static void chassis_vector_to_mecanum_wheel_speed(const fp32 vx_set, const fp32 vy_set, const fp32 wz_set, fp32 wheel_speed[4])
 {
-    //旋转的时候， 由于云台靠前，所以是前面两轮 0 ，1 旋转的速度变慢， 后面两轮 2,3 旋转的速度变快
 	wheel_speed[0] = vx_set - vy_set + (CHASSIS_WZ_SET_SCALE - 1.00f) * MOTOR_DISTANCE_TO_CENTER * wz_set;
     wheel_speed[1] = -vx_set - vy_set + (CHASSIS_WZ_SET_SCALE - 1.00f) * MOTOR_DISTANCE_TO_CENTER * wz_set;
-    wheel_speed[2] = -vx_set + vy_set + (-CHASSIS_WZ_SET_SCALE - 1.00f) * MOTOR_DISTANCE_TO_CENTER * wz_set;//1.10
-    wheel_speed[3] = vx_set + vy_set + (-CHASSIS_WZ_SET_SCALE - 1.00f) * MOTOR_DISTANCE_TO_CENTER * wz_set;//1.25
-	
-//	  wheel_speed[0] = vx_set - vy_set + (CHASSIS_WZ_SET_SCALE - 1.50f) * MOTOR_DISTANCE_TO_CENTER * wz_set;
-//    wheel_speed[1] = -vx_set - vy_set + (CHASSIS_WZ_SET_SCALE - 1.50f) * MOTOR_DISTANCE_TO_CENTER * wz_set;
-//    wheel_speed[2] = -vx_set + vy_set + (-CHASSIS_WZ_SET_SCALE - 0.50f) * MOTOR_DISTANCE_TO_CENTER * wz_set;//1.10
-//    wheel_speed[3] = vx_set + vy_set + (-CHASSIS_WZ_SET_SCALE - 0.50f) * MOTOR_DISTANCE_TO_CENTER * wz_set;//1.25
+    wheel_speed[2] = -vx_set + vy_set + (-CHASSIS_WZ_SET_SCALE - 1.00f) * MOTOR_DISTANCE_TO_CENTER * wz_set;
+    wheel_speed[3] = vx_set + vy_set + (-CHASSIS_WZ_SET_SCALE - 1.00f) * MOTOR_DISTANCE_TO_CENTER * wz_set;
 }
 
 
@@ -524,18 +447,17 @@ static void chassis_vector_to_mecanum_wheel_speed(const fp32 vx_set, const fp32 
 
 static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 {
+    //读取裁判系统功率上限和缓冲能量赋值给底盘变量
 	chassis_move_control_loop->chassis_power_MAX = robot_state.chassis_power_limit;
 	chassis_move_control_loop->chassis_power_buffer = power_heat_data_t.chassis_power_buffer;
-	 
+	//缓冲能量过低保护 
 	if(power_heat_data_t.chassis_power_buffer < 5)
-		chassis_move_control_loop->chassis_power_MAX = 60;
+	chassis_move_control_loop->chassis_power_MAX = 55;
 	
     fp32 max_vector = 0.0f, vector_rate = 0.0f;
     fp32 temp = 0.0f;
     fp32 wheel_speed[4] = {0.0f, 0.0f, 0.0f, 0.0f};
     uint8_t i = 0;
-//		static int32_t input_power;
-//		static int8_t release_energy = 0;
     //麦轮运动分解
     chassis_vector_to_mecanum_wheel_speed(chassis_move_control_loop->vx_set,
                                           chassis_move_control_loop->vy_set, chassis_move_control_loop->wz_set, wheel_speed);
@@ -545,15 +467,7 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 		feipo=!feipo;
 	}	
 	last_key_Ctrl = chassis_move_control_loop->chassis_RC->key.v & KEY_PRESSED_OFFSET_CTRL;
-//		
-//	if(feipo)
-//	{
-//		wheel_speed[0] -= 5;
-//		wheel_speed[1] -= 5;
-//		wheel_speed[2] += 5;
-//		wheel_speed[3] += 5;
-//	}
-//	
+
     if (chassis_move_control_loop->chassis_mode == CHASSIS_VECTOR_RAW)
     {
         
@@ -583,7 +497,7 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
             chassis_move_control_loop->motor_chassis[i].speed_set *= vector_rate;
         }
     }
-	
+	//PID电流计算
 	for (i = 0; i < 4; i++)
 	{
 		chassis_move_control_loop->motor_chassis[i].give_current = PID_calc(&chassis_move_control_loop->motor_speed_pid[i],
@@ -614,7 +528,7 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 	chassis_move_control_loop->power_control.POWER_MAX = 0; //最终底盘的最大功率
 	chassis_move_control_loop->power_control.forecast_total_power = 0; // 预测总功率
 	
-	PID_calc(&chassis_move_control_loop->buffer_pid, chassis_move_control_loop->chassis_power_buffer,15); //使缓冲能量维持在一个稳定的范围,这里的PID没必要移植我的，用任意一个就行
+	PID_calc(&chassis_move_control_loop->buffer_pid, chassis_move_control_loop->chassis_power_buffer,30); //使缓冲能量维持在一个稳定的范围,这里的PID没必要移植我的，用任意一个就行
 
 	max_power_limit = chassis_move_control_loop->chassis_power_MAX;  //获得裁判系统的功率限制数值
 	
@@ -628,19 +542,28 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 
 	if ((get_cap.capvot/100) > 16) //当超电电压大于某个值(防止C620掉电)
 	{
-		if (FCHO)   //主动超电，一般用于起步加速or冲刺or飞坡or上坡，chassis_move.key_C为此代码中超电开启按键
+		if (FCHO)  //主动超电，一般用于起步加速or冲刺or飞坡or上坡
 		{
 			chassis_move_control_loop->power_control.POWER_MAX = 150;		
 		}
 		else
 		{
-			chassis_move_control_loop->power_control.POWER_MAX = input_power + 5;  //被动超电，相对以往能跑得更快点
+			if(robot_state.robot_level < 5)
+			{
+			chassis_move_control_loop->power_control.POWER_MAX = input_power + 15;	
+				if((get_cap.capvot/100) < 17.0)
+				chassis_move_control_loop->power_control.POWER_MAX = input_power;
+			}
+			else
+			{
+			chassis_move_control_loop->power_control.POWER_MAX = input_power + 5;
 			if((get_cap.capvot/100) < 20.0)
 			chassis_move_control_loop->power_control.POWER_MAX = input_power + 2;
 			if((get_cap.capvot/100) < 19.0)
 			chassis_move_control_loop->power_control.POWER_MAX = input_power + 1;
 			if((get_cap.capvot/100) < 18.0)
 			chassis_move_control_loop->power_control.POWER_MAX = input_power;
+			}
 		}
 	}
 	else
@@ -659,6 +582,14 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 		
 		chassis_move_control_loop->power_control.forecast_total_power += chassis_move_control_loop->power_control.forecast_motor_power[i];
 	}
+
+	if(feipo)//飞坡模式，前两轮分配功率少于后两轮，比例可调
+    {
+	    chassis_move_control_loop->power_control.forecast_motor_power[0] = (chassis_move_control_loop->power_control.forecast_total_power/10)*1;
+	    chassis_move_control_loop->power_control.forecast_motor_power[1] = (chassis_move_control_loop->power_control.forecast_total_power/10)*1;
+	    chassis_move_control_loop->power_control.forecast_motor_power[2] = (chassis_move_control_loop->power_control.forecast_total_power/10)*4;
+	    chassis_move_control_loop->power_control.forecast_motor_power[3] = (chassis_move_control_loop->power_control.forecast_total_power/10)*4;
+    }
 	
 	if (chassis_move_control_loop->power_control.forecast_total_power > chassis_move_control_loop->power_control.POWER_MAX) // 超功率模型衰减
 	{
@@ -694,50 +625,5 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 			}
 		}
 	}
-	
-//		chassis_move_control_loop->power_control.K = 480;
-//		chassis_move_control_loop->power_control.POWER_MAX = 80;
-////		input_power = 4500;
-//	
-//	    //计算pid
-//    for (i = 0; i < 4; i++)
-//    {
-//        PID_calc(&chassis_move_control_loop->motor_speed_pid[i], chassis_move_control_loop->motor_chassis[i].speed, chassis_move_control_loop->motor_chassis[i].speed_set);
-//				chassis_move_control_loop->power_control.speed[i]=chassis_move_control_loop->motor_chassis[i].speed;
-//				if(fabs(chassis_move_control_loop->power_control.speed[i]) < 0.01)
-//				{
-//					chassis_move_control_loop->power_control.speed[i] = 0.01;				
-//				}
-//				chassis_move_control_loop->power_control.totalSpeed+=fabs(chassis_move_control_loop->power_control.speed[i]);
-//    }
-//		//计算总电流
-//		for (i = 0; i < 4; i++)
-//    {
-//        chassis_move_control_loop->motor_chassis[i].give_current=(fp32)(chassis_move_control_loop->motor_speed_pid[i].out);
-//				chassis_move_control_loop->power_control.current[i]=chassis_move_control_loop->motor_chassis[i].give_current;
-//				chassis_move_control_loop->power_control.totalCurrentTemp+=fabs(chassis_move_control_loop->power_control.current[i]);
-//    }
-//		//计算单个电机最大电流
-//		for(i=0;i<4;i++)
-//		{
-//				chassis_move_control_loop->power_control.MAX_current[i]=(chassis_move_control_loop->power_control.K*chassis_move_control_loop->power_control.current[i]/chassis_move_control_loop->power_control.totalCurrentTemp)
-//				*(chassis_move_control_loop->power_control.POWER_MAX)/(4*fabs(chassis_move_control_loop->power_control.speed[i]));
-//				//轮子阻尼不同需要的电流不同、 
-//		}
-//		chassis_move_control_loop->power_control.totalCurrentTemp=0;
-//		chassis_move_control_loop->power_control.totalSpeed=0;
-//		//电流值
-//		for(i=0;i<4;i++)
-//		{   
-//				if(abs(chassis_move_control_loop->motor_chassis[i].give_current)>=abs(chassis_move_control_loop->power_control.MAX_current[i]))
-//				{			
-//						chassis_move_control_loop->motor_chassis[i].give_current=chassis_move_control_loop->power_control.MAX_current[i];
-//				}
-//				else
-//				{   
-//						chassis_move_control_loop->motor_chassis[i].give_current=(int16_t)(chassis_move_control_loop->motor_speed_pid[i].out);		
-//				}
-//		}
-
 }
 

@@ -206,7 +206,7 @@ int s=2000,l;
     {
 						laser_on();
 						trigger_motor_turn_back();
-						fric_speed = 3.00;
+						fric_speed = 2.97;
 						shoot_fric(fric_speed);		
 						//·¢µ¯
 				   if(shoot_control.shoot_rc->rc.ch[4] <= 120 && shoot_control.shoot_rc->rc.ch[4] >=-120 && !press_l_last_s && !shoot_control.press_l)

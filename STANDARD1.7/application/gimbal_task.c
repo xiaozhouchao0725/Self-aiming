@@ -383,8 +383,8 @@ static void gimbal_init(gimbal_control_t *init)
   init->gimbal_pitch_motor.motor_gyro_set = init->gimbal_pitch_motor.motor_gyro;
   init->gimbal_yaw_motor.max_relative_angle = 2.10f;
   init->gimbal_yaw_motor.min_relative_angle = -2.60f;
-  init->gimbal_pitch_motor.min_relative_angle = -0.223961204f;
-  init->gimbal_pitch_motor.max_relative_angle = 0.217825279f;
+  init->gimbal_pitch_motor.min_relative_angle = -0.249271885f;
+  init->gimbal_pitch_motor.max_relative_angle = 0.189446628f;
 }
 
 /**
@@ -419,7 +419,7 @@ static void gimbal_feedback_update(gimbal_control_t *feedback_update)
                                                                                   feedback_update->gimbal_pitch_motor.offset_ecd);
   feedback_update->gimbal_pitch_motor.motor_gyro = feedback_update->gimbal_INS_point->Gyro[1];
 
-  feedback_update->gimbal_yaw_motor.absolute_angle = feedback_update->gimbal_INS_point->Yaw;
+  feedback_update->gimbal_yaw_motor.absolute_angle = feedback_update->gimbal_INS_point->Yaw;  
   feedback_update->gimbal_yaw_motor.relative_angle = motor_ecd_to_angle_change(feedback_update->gimbal_yaw_motor.gimbal_motor_measure->ecd,
                                                                                feedback_update->gimbal_yaw_motor.offset_ecd);
   feedback_update->gimbal_yaw_motor.motor_gyro = arm_cos_f32(feedback_update->gimbal_pitch_motor.relative_angle) * (feedback_update->gimbal_INS_point->Gyro[Z]) - arm_sin_f32(feedback_update->gimbal_pitch_motor.relative_angle) * (feedback_update->gimbal_INS_point->Gyro[X]);

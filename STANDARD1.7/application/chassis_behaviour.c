@@ -247,15 +247,15 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
         return;
     }
 
-		static int mode = 0;
-		if(chassis_move_mode->chassis_RC->key.v & KEY_PRESSED_OFFSET_B )
-		{
-				mode = 1;
-		}
-		if(chassis_move_mode->chassis_RC->key.v & KEY_PRESSED_OFFSET_V )
-		{
-				mode = 2;
-		}
+		static int mode = 2;
+//		if(chassis_move_mode->chassis_RC->key.v & KEY_PRESSED_OFFSET_B )
+//		{
+//				mode = 1;
+//		}
+//		if(chassis_move_mode->chassis_RC->key.v & KEY_PRESSED_OFFSET_V )
+//		{
+//				mode = 2;
+//		}
     //remote control  set chassis behaviour mode
     //遥控器设置模式
 		if(!switch_is_down(chassis_move_mode->chassis_RC->rc.s[1]))
@@ -275,15 +275,17 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 		}
 		else if(switch_is_down(chassis_move_mode->chassis_RC->rc.s[1]))
 		{
-				if(mode == 1)
-				{
-						chassis_behaviour_mode = CHASSIS_NO_FOLLOW_YAW;
-						if(chassis_move_mode->chassis_RC->key.v & KEY_PRESSED_OFFSET_SHIFT )
-						{
-								chassis_behaviour_mode = CHASSIS_BPIN;
-						}
-				}
-				else if(mode == 2)
+//				if(mode == 1)
+//				{
+//						chassis_behaviour_mode = CHASSIS_NO_FOLLOW_YAW;
+//						if(chassis_move_mode->chassis_RC->key.v & KEY_PRESSED_OFFSET_SHIFT )
+//						{
+//								chassis_behaviour_mode = CHASSIS_BPIN;
+//						}
+//				}
+				if(switch_is_down(chassis_move_mode->chassis_RC->rc.s[0]))
+				chassis_behaviour_mode = CHASSIS_NO_MOVE;
+			else if(mode == 2)
 				{
 						chassis_behaviour_mode = CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW;
 											
@@ -292,8 +294,6 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 								chassis_behaviour_mode = CHASSIS_BPIN;
 						}
 				}
-		else
-			chassis_behaviour_mode = CHASSIS_NO_MOVE;
 		}
 				//继电器控制云台电源
 //    if(robot_state.mains_power_chassis_output == 0)
