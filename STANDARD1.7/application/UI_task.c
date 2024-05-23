@@ -44,14 +44,14 @@ void UI_task(void const *pvParameters)
 			}
 //			memset(&Aim[10],0,sizeof(Aim[10]));			//清空图形数据
 			Line_Draw(&Aim[0],"AL1",UI_Graph_ADD,5,UI_Color_Green,3,960,300,960,540);
-			Line_Draw(&Aim[1],"AL2",UI_Graph_ADD,5,UI_Color_Green,2,940,495,980,495);
-			Line_Draw(&Aim[2],"AL3",UI_Graph_ADD,5,UI_Color_Black,3,930,458,990,458);
-			Line_Draw(&Aim[3],"AL4",UI_Graph_ADD,5,UI_Color_Yellow,2,920,360,1000,360);
-			Line_Draw(&Aim[8],"AL9",UI_Graph_ADD,6,UI_Color_Purplish_red,2,920,310,1000,310);
+			Line_Draw(&Aim[1],"AL2",UI_Graph_ADD,5,UI_Color_Green,2,940,520,980,520);
+			Line_Draw(&Aim[2],"AL3",UI_Graph_ADD,5,UI_Color_Green,3,915,485,975,485);
+//			Line_Draw(&Aim[3],"AL4",UI_Graph_ADD,5,UI_Color_Yellow,2,920,360,1000,360);
+//			Line_Draw(&Aim[8],"AL9",UI_Graph_ADD,6,UI_Color_Purplish_red,2,920,310,1000,310);
 			//可通过宽度
 			Line_Draw(&Aim[4],"AL5",UI_Graph_ADD,6,UI_Color_Green,2,440,0,627,443);
 			Line_Draw(&Aim[5],"AL6",UI_Graph_ADD,6,UI_Color_Green,2,1480,0,1293,443);
-			Line_Draw(&Aim[6],"AL7",UI_Graph_ADD,5,UI_Color_Orange,3,920,380,1000,380);
+			Line_Draw(&Aim[6],"AL7",UI_Graph_ADD,5,UI_Color_Green,3,935,320,935,560);
 			Line_Draw(&Aim[7],"AL8",UI_Graph_ADD,7,UI_Color_Purplish_red,10,1700,600,1700,700);
 			Line_Draw(&Aim[10],"AL11",UI_Graph_ADD,7,UI_Color_Cyan,0,1700,600,1800,600);
 			Circle_Draw(&Aim[9],"CL9",UI_Graph_ADD,5,UI_Color_Orange,5,1700,600,100);
@@ -92,14 +92,14 @@ void UI_task(void const *pvParameters)
 		if(rc_ctrl.key.v&KEY_PRESSED_OFFSET_Z)
 		{
 			Line_Draw(&Aim[0],"AL1",UI_Graph_ADD,5,UI_Color_Green,3,960,300,960,540);
-			Line_Draw(&Aim[1],"AL2",UI_Graph_ADD,5,UI_Color_Green,2,940,495,980,495);
-			Line_Draw(&Aim[2],"AL3",UI_Graph_ADD,5,UI_Color_Black,3,930,458,990,458);
-			Line_Draw(&Aim[3],"AL4",UI_Graph_ADD,5,UI_Color_Yellow,2,920,360,1000,360);
-			Line_Draw(&Aim[8],"AL9",UI_Graph_ADD,6,UI_Color_Purplish_red,2,920,310,1000,310);
+			Line_Draw(&Aim[1],"AL2",UI_Graph_ADD,5,UI_Color_Green,2,940,520,980,520);
+			Line_Draw(&Aim[2],"AL3",UI_Graph_ADD,5,UI_Color_Green,3,915,485,975,485);
+//			Line_Draw(&Aim[3],"AL4",UI_Graph_ADD,5,UI_Color_Yellow,2,920,360,1000,360);
+//			Line_Draw(&Aim[8],"AL9",UI_Graph_ADD,6,UI_Color_Purplish_red,2,920,310,1000,310);
 			//可通过宽度
 			Line_Draw(&Aim[4],"AL5",UI_Graph_ADD,6,UI_Color_Green,2,440,0,627,443);
 			Line_Draw(&Aim[5],"AL6",UI_Graph_ADD,6,UI_Color_Green,2,1480,0,1293,443);
-			Line_Draw(&Aim[6],"AL7",UI_Graph_ADD,5,UI_Color_Orange,3,920,380,1000,380);
+			Line_Draw(&Aim[6],"AL7",UI_Graph_ADD,5,UI_Color_Green,3,935,320,935,560);
 			Line_Draw(&Aim[7],"AL8",UI_Graph_ADD,7,UI_Color_Purplish_red,10,1700,600,1700,700);
 			Line_Draw(&Aim[10],"AL11",UI_Graph_ADD,7,UI_Color_Cyan,0,1700,600,1800,600);
 			Circle_Draw(&Aim[9],"CL9",UI_Graph_ADD,5,UI_Color_Orange,5,1700,600,100);

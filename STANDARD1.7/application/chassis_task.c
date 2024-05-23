@@ -118,7 +118,7 @@ void chassis_task(void const *pvParameters)
         if (!(toe_is_error(CHASSIS_MOTOR1_TOE) && toe_is_error(CHASSIS_MOTOR2_TOE) && toe_is_error(CHASSIS_MOTOR3_TOE) && toe_is_error(CHASSIS_MOTOR4_TOE)))
         {
             //当遥控器掉线的时候，发送给底盘电机零电流.
-            if (toe_is_error(DBUS_TOE))
+            if (toe_is_error(DBUS_TOE)||robot_state.power_management_chassis_output==0)
             {
                 CAN_cmd_chassis(0, 0, 0, 0);
             }
@@ -515,7 +515,7 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 	}	
 	last_key_F = chassis_move_control_loop->chassis_RC->key.v & KEY_PRESSED_OFFSET_F;
 			
-	if((get_cap.capvot/100) < 18.0)
+	if((get_cap.capvot/100) < 16.0)
 		FCHO=0;
 	
 	uint16_t max_power_limit = 40;
@@ -544,13 +544,20 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 	{
 		if (FCHO)  //主动超电，一般用于起步加速or冲刺or飞坡or上坡
 		{
-			chassis_move_control_loop->power_control.POWER_MAX = 150;		
+			if(feipo)
+			chassis_move_control_loop->power_control.POWER_MAX = 250;
+			else if(robot_state.robot_level < 4)
+			chassis_move_control_loop->power_control.POWER_MAX = 90;
+			else if(robot_state.robot_level > 3 && robot_state.robot_level < 7)
+			chassis_move_control_loop->power_control.POWER_MAX = 110;
+			else
+			chassis_move_control_loop->power_control.POWER_MAX = 140;		
 		}
 		else
 		{
-			if(robot_state.robot_level < 5)
+			if(robot_state.robot_level < 6)
 			{
-			chassis_move_control_loop->power_control.POWER_MAX = input_power + 15;	
+			chassis_move_control_loop->power_control.POWER_MAX = input_power + 10;	
 				if((get_cap.capvot/100) < 17.0)
 				chassis_move_control_loop->power_control.POWER_MAX = input_power;
 			}
@@ -585,10 +592,10 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 
 	if(feipo)//飞坡模式，前两轮分配功率少于后两轮，比例可调
     {
-	    chassis_move_control_loop->power_control.forecast_motor_power[0] = (chassis_move_control_loop->power_control.forecast_total_power/10)*1;
-	    chassis_move_control_loop->power_control.forecast_motor_power[1] = (chassis_move_control_loop->power_control.forecast_total_power/10)*1;
-	    chassis_move_control_loop->power_control.forecast_motor_power[2] = (chassis_move_control_loop->power_control.forecast_total_power/10)*4;
-	    chassis_move_control_loop->power_control.forecast_motor_power[3] = (chassis_move_control_loop->power_control.forecast_total_power/10)*4;
+	    chassis_move_control_loop->power_control.forecast_motor_power[0] = (chassis_move_control_loop->power_control.forecast_total_power/10)*1.5f;
+	    chassis_move_control_loop->power_control.forecast_motor_power[1] = (chassis_move_control_loop->power_control.forecast_total_power/10)*1.5f;
+	    chassis_move_control_loop->power_control.forecast_motor_power[2] = (chassis_move_control_loop->power_control.forecast_total_power/10)*3.5f;
+	    chassis_move_control_loop->power_control.forecast_motor_power[3] = (chassis_move_control_loop->power_control.forecast_total_power/10)*3.5f;
     }
 	
 	if (chassis_move_control_loop->power_control.forecast_total_power > chassis_move_control_loop->power_control.POWER_MAX) // 超功率模型衰减

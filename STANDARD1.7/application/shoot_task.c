@@ -69,10 +69,6 @@ static void shoot_feedback_update(void);
   */
 static void trigger_motor_turn_back(void);
 
-
-
-
-
 shoot_control_t shoot_control;          //Éä»÷Êý¾Ý
 static int16_t left_can_set_current = 0, right_can_set_current = 0, trigger_can_set_current = 0;
 /**
@@ -216,13 +212,13 @@ int s=2000,l;
 									shoot_control.lianfa_flag=0;
 						}
 						//·¢µ¯
-						if(shoot_control.bullet_flag == 1 && (shoot_control.shoot_rc->rc.ch[4] > 500 || (!press_l_last_s && shoot_control.press_l)) /*&&
+						if(shoot_control.bullet_flag == 1 && (shoot_control.shoot_rc->rc.ch[4] > 655 || (!press_l_last_s && shoot_control.press_l)) /*&&			//500
 						(robot_state.shooter_barrel_heat_limit - power_heat_data_t.shooter_id1_17mm_cooling_heat >= 30)*/) 
 						{
 								shoot_control.shoot_flag = 1;
 								shoot_control.bullet_flag = 0;
 						}
-						else if((shoot_control.shoot_rc->rc.ch[4] < -500 || (press_l_last_s&&shoot_control.press_l))
+						else if((shoot_control.shoot_rc->rc.ch[4] < -650 || (press_l_last_s&&shoot_control.press_l))								//500
 							/*&& (robot_state.shooter_barrel_heat_limit - power_heat_data_t.shooter_id1_17mm_cooling_heat >= 30)*/){
 //								shoot_control.black_time++;
 								shoot_control.lianfa_flag=1;

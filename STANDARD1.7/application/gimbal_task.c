@@ -214,7 +214,7 @@ void gimbal_task(void const *pvParameters)
     }
     else
     {
-      CAN_cmd_gimbal(gimbal_control.gimbal_yaw_motor.given_current, -gimbal_control.gimbal_pitch_motor.given_current, 0, 0);
+      CAN_cmd_gimbal(gimbal_control.gimbal_yaw_motor.given_current, -gimbal_control.gimbal_pitch_motor.given_current, 0, 0);		
     }
 //            }
 
@@ -383,7 +383,7 @@ static void gimbal_init(gimbal_control_t *init)
   init->gimbal_pitch_motor.motor_gyro_set = init->gimbal_pitch_motor.motor_gyro;
   init->gimbal_yaw_motor.max_relative_angle = 2.10f;
   init->gimbal_yaw_motor.min_relative_angle = -2.60f;
-  init->gimbal_pitch_motor.min_relative_angle = -0.249271885f;
+  init->gimbal_pitch_motor.min_relative_angle = -0.430281609f;
   init->gimbal_pitch_motor.max_relative_angle = 0.189446628f;
 }
 
